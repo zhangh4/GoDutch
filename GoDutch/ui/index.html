@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="stylesheet" href="jquery-ui.css">
+    <link rel="stylesheet" href="bootstrap-3.3.2-dist/css/bootstrap.css">
+    <script src="bootstrap-3.3.2-dist/js/jquery-1.11.2.js"></script>
+    <script src="bootstrap-3.3.2-dist/js/bootstrap.js"></script>
+    <script type="text/javascript" src="jquery-2.1.3.js"></script>
+    <script type="text/javascript" src="jquery-ui.js"></script>
+    <script type="text/javascript" src="knockout-3.2.0.debug.js"></script>
+    <script src="utility.js"></script>
+    <script type="text/javascript">
+        $(function () {
+
+            $.ajaxSetup({
+                contentType: "application/json; charset=utf-8"
+            });
+            
+            function getWebRoot() {
+                var webRoot = 'GoDutch';
+                return webRoot ? '/' + webRoot : '';
+            }
+
+            $( "#createEvent" ).dialog({
+                modal: true,
+                autoOpen: false,
+                height: 300,
+                width: 700,
+                show: {
+                    effect: "blind",
+                    duration: 500
+                },
+                buttons: [
+                    {
+                        text: "Save",
+//                        icons: {
+//                            primary: "ui-icon-heart"
+//                        },
+                        click: function () {
+                            var self = $(this);
+                            var event = viewModel.event();
+                            var events = viewModel.overall.events();
+                            if (event.id) {
+                                $.ajax({
+                                        url: getWebRoot() + '/api/events?id=' + event.id,
+                                        data: ko.toJSON(event),
+                                        type: 'PUT'
+                                    })
+                                    .done(function() {
+                                        viewModel.overall.events.splice(
+                                            events.indexOf(
+                                                events.filter(
+                                                    function(e) { return e.id === event.id; })[0]),
+                                            1,
+                                            event);
+                                        self.dialog("close");
+                                    })
+                                    .fail(function (jqXHR, textStatus, errorThrown) {
+                                        $("#errorMessageForEvent").text("Sorry, an error has happened. Please try again.").show();
+                                    });
+                            }
+                            else {
+                                $.post(getWebRoot() + '/api/events', ko.toJSON(event))
+                                    .done(function (result) {
+                                        event.id = result.id;
+                                        viewModel.overall.events.push(event);
+                                        self.dialog("close");
+                                    })
+                                    .fail(function (jqXHR, textStatus, errorThrown) {
+                                        $("#errorMessageForEvent").text("Sorry, an error has happened. Please try again.").show();
+                                    });
+                            }
+//                            $( this ).dialog( "close" );
+//                            alert(viewModel.overall.getTotalBalances());
+                        }
+                    },
+                    {
+                        text: "Cancel",
+//                        icons: {
+//                            primary: "ui-icon-heart"
+//                        },
+                        click: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                ]
+//                ,hide: {
+//                    effect: "explode",
+//                    duration: 1000
+//                }
+            });
+
+            $("#createEventButton").click(function(){
+                viewModel.event(viewModel.createNewEvent());
+                $("#createEvent").dialog("open");
+            });
+
+            function Event(spec) {
+                this.id = spec && spec.id;
+                this.name = spec && ko.observable(spec.name);
+                this.attendingFamilies = spec && spec.attendingFamilies.map(function(f) { return new Family(f, this); }, this);
+
+                this.getTotalExpenses = function() {
+                    return this.attendingFamilies
+                        .map(function(f) { return f.expense(); })
+                        .reduce(function(total, current) { return total + current; }, 0);
+                };
+                this.getTotalCount = function() {
+                    return this.attendingFamilies
+                        .map(function(f) { return f.count(); })
+                        .reduce(function(total, current) { return total + current; }, 0);
+                };
+                this.getPaymentPerPerson = function() {
+                    var totalCount = this.getTotalCount();
+                    return totalCount === 0 ? 0 : Math.round10(this.getTotalExpenses() / totalCount, -2);
+                };
+
+                function Family(spec, parent) {
+                    this.id = spec.id;
+                    this.name = spec.name;
+                    this.expense = ko.numericObservable(spec.expense);
+                    this.count = ko.numericObservable(spec.count);
+                    this.getPayment = function() { return Math.round10(parent.getPaymentPerPerson()*this.count(), -2); };
+                    this.getBalance = function() { return Math.round10(this.expense() - this.getPayment(), -2); };
+                }
+            }
+
+            var overall = {
+                families: ko.observableArray(),//[ { id: 1, name: 'Brayden' }, { id: 2, name: 'Jason' }, { id: 3, name: 'Debra' } ],
+                events: ko.observableArray(),
+                getTotalBalances: function() {
+                    return this.families()
+                        .map(function (f) {
+                            return this.events()
+                                .map(function (e) {
+                                    return e.attendingFamilies
+                                        .filter(function (ff) {
+                                            return ff.id === f.id;
+                                        })[0].getBalance();
+                                })
+                                .reduce(function (total, balance) {
+                                    return total + balance;
+                                }, 0);
+                        }, this)
+                        .map(function(v) { return Math.round10(v, -2); });
+                },
+                removeEvent: function (e) {
+                    var that = this;
+                    $.ajax({
+                            url: getWebRoot() + '/api/events?id=' + e.id,
+                            type: 'DELETE'
+                        })
+                        .done(function() {
+                            that.events.remove(e);
+                        });
+                },
+                editEvent: function(e) {
+                    var eventInJS = ko.toJS(e);
+                    var clone = new Event({id: eventInJS.id, name: eventInJS.name, attendingFamilies: eventInJS.attendingFamilies});
+                    viewModel.event(clone);
+                    $("#createEvent").dialog("open");
+                }
+            };
+
+            var viewModel = {
+                overall: overall,
+                event: ko.observable(),
+                createNewEvent: function() {
+                    return new Event({
+                        name: '',
+                        attendingFamilies: overall.families().map(function(f) { return { id: f.id, name: f.name, expense: 0, count: 0 }; })
+                    });
+                }
+            };
+
+            ko.applyBindings(viewModel);
+//            ko.applyBindings(overall, $('#Overall')[0]);
+//            ko.applyBindings(event, $('#createEvent')[0]);
+            
+            $.getJSON(getWebRoot() + "/api/families", function (data) {
+                overall.families(data);
+            });
+
+            $.getJSON(getWebRoot() + "/api/events", function (data) {
+                overall.events(data.map(function (e) { return new Event(e); }));
+            });
+        });
+    </script>
+    
+    <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/
+    ↵3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/
+    ↵respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+</head>
+<body>
+    <h2>Welcome to Go Dutch <small>The designated tool for Brentwood</small></h2>
+    <div id="Overall" data-bind="with: overall" class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-10 col-lg-8 table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                <button id="createEventButton" class="btn btn-info">Add an Event</button>
+                            </th>
+                            <!-- ko foreach: families-->
+                            <th data-bind="text: $data.name"></th>
+                            <!-- /ko -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- ko foreach: events -->
+                        <tr>
+                            <td>
+                                <span data-bind="text: name"></span>
+                                <span><button data-bind="click: $parent.editEvent.bind($parent)" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
+                                <span><button data-bind="click: $parent.removeEvent.bind($parent)" class="btn btn-warning"><span class="glyphicon glyphicon-remove"></span></button></span>
+                            </td>
+                            <!-- ko foreach: attendingFamilies-->
+                            <td>
+<!--                                <div class="input-group">-->
+<!--                                    <span class="input-group-addon">$</span>-->
+<!--                                    <input type="text" class="form-control" data-bind="value: getBalance()">-->
+<!--                                </div>-->
+                                <span>$</span>
+                                <span data-bind="text: getBalance()"></span>
+                            </td>
+                            <!-- /ko -->
+                        </tr>
+                        <!-- /ko -->
+                        <tr class="info">
+                            <td>Total Balance:</td>
+                            <!-- ko foreach: getTotalBalances() -->
+                            <td>
+                                <span>$</span>
+                                <span data-bind="text: $data"></span>
+                            </td>
+                            <!-- /ko -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
+    </div>
+
+    <div id="createEvent" style="width: auto; height: auto" data-bind="with: event">
+        <div id="errorMessageForEvent" class="ui-state-error" style="display: none"></div>
+        <table border="0">
+            <thead>
+                <tr>
+                    <td width="200px"><input type="text" data-bind="value: name"></td>
+                    <!-- ko foreach: attendingFamilies-->
+                    <td width="100px" data-bind="text: name"></td>
+                    <!-- /ko -->
+                    <td width="100px">Total</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td width="200px">Expense</td>
+                    <!-- ko foreach: attendingFamilies-->
+                    <td width="100px"><input type="text" data-bind="value: expense"></td>
+                    <!-- /ko -->
+                    <td width="100px" data-bind="text: getTotalExpenses()"></td>
+                </tr>
+                <tr>
+                    <td width="200px">Attendee</td>
+                    <!-- ko foreach: attendingFamilies-->
+                    <td width="100px"><input type="text" data-bind="value: count"></td>
+                    <!-- /ko -->
+                    <td width="100px" data-bind="text: getTotalCount()"></td>
+                </tr>
+                <tr>
+                    <td width="200px">Balance</td>
+                    <!-- ko foreach: attendingFamilies-->
+                    <td width="100px" data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></td>
+                    <!-- /ko -->
+                    <td width="100px"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!--<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>-->
+
+    </div>
+
+
+</body>
+</html>
