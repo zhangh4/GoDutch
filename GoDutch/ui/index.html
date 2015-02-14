@@ -25,7 +25,7 @@
                 return webRoot ? '/' + webRoot : '';
             }
 
-            $( "#createEvent" ).dialog({
+            $( "#createEventOld" ).dialog({
                 modal: true,
                 autoOpen: false,
                 height: 300,
@@ -37,9 +37,6 @@
                 buttons: [
                     {
                         text: "Save",
-//                        icons: {
-//                            primary: "ui-icon-heart"
-//                        },
                         click: function () {
                             var self = $(this);
                             var event = viewModel.event();
@@ -74,29 +71,61 @@
                                         $("#errorMessageForEvent").text("Sorry, an error has happened. Please try again.").show();
                                     });
                             }
-//                            $( this ).dialog( "close" );
-//                            alert(viewModel.overall.getTotalBalances());
                         }
                     },
                     {
                         text: "Cancel",
-//                        icons: {
-//                            primary: "ui-icon-heart"
-//                        },
                         click: function() {
                             $( this ).dialog( "close" );
                         }
                     }
                 ]
-//                ,hide: {
-//                    effect: "explode",
-//                    duration: 1000
-//                }
             });
 
             $("#createEventButton").click(function(){
                 viewModel.event(viewModel.createNewEvent());
-                $("#createEvent").dialog("open");
+                viewModel.editMode(true);
+                //                $("#createEvent").dialog("open");
+            });
+
+            $("#saveEventButton").click(function () {
+                var event = viewModel.event();
+                var events = viewModel.overall.events;
+                if (event.id) {
+                    $.ajax({
+                        url: getWebRoot() + '/api/events?id=' + event.id,
+                        data: ko.toJSON(event),
+                        type: 'PUT'
+                    })
+                    .done(function () {
+                        events.splice(
+                            events().indexOf(
+                                events().filter(
+                                    function (e) { return e.id === event.id; })[0]),
+                            1,
+                            event);
+                        viewModel.editMode(false);
+                        //                                self.dialog("close");
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        $("#errorMessageForEvent").text("Sorry, an error has happened. Please try again.").show();
+                    });
+                } else {
+                    $.post(getWebRoot() + '/api/events', ko.toJSON(event))
+                    .done(function (result) {
+                        event.id = result.id;
+                        events.unshift(event);
+                        viewModel.editMode(false);
+                        //                                self.dialog("close");
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        $("#errorMessageForEvent").text("Sorry, an error has happened. Please try again.").show();
+                    });
+                }
+            });
+
+            $("#cancelEventButton").click(function () {
+                viewModel.editMode(false);
             });
 
             function Event(spec) {
@@ -162,13 +191,15 @@
                     var eventInJS = ko.toJS(e);
                     var clone = new Event({id: eventInJS.id, name: eventInJS.name, attendingFamilies: eventInJS.attendingFamilies});
                     viewModel.event(clone);
-                    $("#createEvent").dialog("open");
+                    viewModel.editMode(true);
+//                    $("#createEvent").dialog("open");
                 }
             };
 
             var viewModel = {
                 overall: overall,
                 event: ko.observable(),
+                editMode: ko.observable(false),
                 createNewEvent: function() {
                     return new Event({
                         name: '',
@@ -176,11 +207,14 @@
                     });
                 }
             };
+            viewModel.event(viewModel.createNewEvent());
+
+            
 
             ko.applyBindings(viewModel);
 //            ko.applyBindings(overall, $('#Overall')[0]);
-//            ko.applyBindings(event, $('#createEvent')[0]);
-            
+            //            ko.applyBindings(event, $('#createEvent')[0]);
+
             $.getJSON(getWebRoot() + "/api/families", function (data) {
                 overall.families(data);
             });
@@ -201,21 +235,26 @@
 </head>
 <body>
     <h2>Welcome to Go Dutch <small>The designated tool for Brentwood</small></h2>
-    <div id="Overall" data-bind="with: overall" class="container-fluid">
+    <div id="errorMessageForEvent" class="ui-state-error" style="display: none"></div>
+    <div id="Overall" class="container-fluid">
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-10 col-lg-8 table-responsive">
                 <table class="table table-striped">
-                    <thead>
+                    <thead data-bind="with: overall">
                         <tr>
                             <th>
-                                <button id="createEventButton" class="btn btn-info">Add an Event</button>
+                                <button id="createEventButton" class="btn btn-info" data-bind="visible: !$root.editMode()">Add an Event</button>
+                                <input type="text" data-bind="visible: $root.editMode(), value: $root.event().name" />
                             </th>
                             <!-- ko foreach: families-->
                             <th data-bind="text: $data.name"></th>
                             <!-- /ko -->
                         </tr>
                     </thead>
-                    <tbody>
+                    
+                    
+                    
+                    <tbody id="events" data-bind="visible: !editMode(), with: overall">
                         <!-- ko foreach: events -->
                         <tr>
                             <td>
@@ -225,10 +264,10 @@
                             </td>
                             <!-- ko foreach: attendingFamilies-->
                             <td>
-<!--                                <div class="input-group">-->
-<!--                                    <span class="input-group-addon">$</span>-->
-<!--                                    <input type="text" class="form-control" data-bind="value: getBalance()">-->
-<!--                                </div>-->
+                                <!--                                <div class="input-group">-->
+                                <!--                                    <span class="input-group-addon">$</span>-->
+                                <!--                                    <input type="text" class="form-control" data-bind="value: getBalance()">-->
+                                <!--                                </div>-->
                                 <span>$</span>
                                 <span data-bind="text: getBalance()"></span>
                             </td>
@@ -245,52 +284,47 @@
                             <!-- /ko -->
                         </tr>
                     </tbody>
+                    
+                    <tbody id="createEvent" data-bind="visible: editMode()">
+                        <!-- ko with: event -->
+                        <tr>
+                            <td>Expense</td>
+                            <!-- ko foreach: attendingFamilies-->
+                            <td><input type="text" data-bind="value: expense"></td>
+                            <!-- /ko -->
+                            <td data-bind="text: getTotalExpenses()"></td>
+                        </tr>
+                        <tr>
+                            <td>Attendee</td>
+                            <!-- ko foreach: attendingFamilies-->
+                            <td><input type="text" data-bind="value: count"></td>
+                            <!-- /ko -->
+                            <td data-bind="text: getTotalCount()"></td>
+                        </tr>
+                        <tr>
+                            <td>Balance</td>
+                            <!-- ko foreach: attendingFamilies-->
+                            <td data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></td>
+                            <!-- /ko -->
+                            <td></td>
+                        </tr>
+                        <!-- /ko -->
+                        <tr>
+                            <td colspan="3">
+                                <button id="saveEventButton" class="btn btn-info">Save</button>
+                                <button id="cancelEventButton" class="btn btn-info">Cancel</button>
+                            </td>
+                        </tr>
+                    </tbody>
+
                 </table>
             </div>
         </div>
+        <div id="createEventOld"></div>
         <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
     </div>
 
-    <div id="createEvent" style="width: auto; height: auto" data-bind="with: event">
-        <div id="errorMessageForEvent" class="ui-state-error" style="display: none"></div>
-        <table border="0">
-            <thead>
-                <tr>
-                    <td width="200px"><input type="text" data-bind="value: name"></td>
-                    <!-- ko foreach: attendingFamilies-->
-                    <td width="100px" data-bind="text: name"></td>
-                    <!-- /ko -->
-                    <td width="100px">Total</td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td width="200px">Expense</td>
-                    <!-- ko foreach: attendingFamilies-->
-                    <td width="100px"><input type="text" data-bind="value: expense"></td>
-                    <!-- /ko -->
-                    <td width="100px" data-bind="text: getTotalExpenses()"></td>
-                </tr>
-                <tr>
-                    <td width="200px">Attendee</td>
-                    <!-- ko foreach: attendingFamilies-->
-                    <td width="100px"><input type="text" data-bind="value: count"></td>
-                    <!-- /ko -->
-                    <td width="100px" data-bind="text: getTotalCount()"></td>
-                </tr>
-                <tr>
-                    <td width="200px">Balance</td>
-                    <!-- ko foreach: attendingFamilies-->
-                    <td width="100px" data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></td>
-                    <!-- /ko -->
-                    <td width="100px"></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!--<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>-->
-
-    </div>
+    
 
 
 </body>
