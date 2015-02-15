@@ -7,6 +7,14 @@
     <title></title>
     <link rel="stylesheet" href="jquery-ui.css">
     <link rel="stylesheet" href="bootstrap-3.3.2-dist/css/bootstrap.css">
+    <style>
+        .input-group-addon { padding: 3px 3px; }
+        .form-control { padding: 3px 3px; }
+        .editField { padding-bottom: 5px; }
+        .editFamily { margin: 5px 5px 5px 5px;padding: 3px 3px;width: 90px;background-color: #CEF6CE; border-radius: 8px }
+
+        
+    </style>
     <script src="bootstrap-3.3.2-dist/js/jquery-1.11.2.js"></script>
     <script src="bootstrap-3.3.2-dist/js/bootstrap.js"></script>
     <script type="text/javascript" src="jquery-2.1.3.js"></script>
@@ -24,68 +32,10 @@
                 var webRoot = 'GoDutch';
                 return webRoot ? '/' + webRoot : '';
             }
-
-            $( "#createEventOld" ).dialog({
-                modal: true,
-                autoOpen: false,
-                height: 300,
-                width: 700,
-                show: {
-                    effect: "blind",
-                    duration: 500
-                },
-                buttons: [
-                    {
-                        text: "Save",
-                        click: function () {
-                            var self = $(this);
-                            var event = viewModel.event();
-                            var events = viewModel.overall.events();
-                            if (event.id) {
-                                $.ajax({
-                                        url: getWebRoot() + '/api/events?id=' + event.id,
-                                        data: ko.toJSON(event),
-                                        type: 'PUT'
-                                    })
-                                    .done(function() {
-                                        viewModel.overall.events.splice(
-                                            events.indexOf(
-                                                events.filter(
-                                                    function(e) { return e.id === event.id; })[0]),
-                                            1,
-                                            event);
-                                        self.dialog("close");
-                                    })
-                                    .fail(function (jqXHR, textStatus, errorThrown) {
-                                        $("#errorMessageForEvent").text("Sorry, an error has happened. Please try again.").show();
-                                    });
-                            }
-                            else {
-                                $.post(getWebRoot() + '/api/events', ko.toJSON(event))
-                                    .done(function (result) {
-                                        event.id = result.id;
-                                        viewModel.overall.events.push(event);
-                                        self.dialog("close");
-                                    })
-                                    .fail(function (jqXHR, textStatus, errorThrown) {
-                                        $("#errorMessageForEvent").text("Sorry, an error has happened. Please try again.").show();
-                                    });
-                            }
-                        }
-                    },
-                    {
-                        text: "Cancel",
-                        click: function() {
-                            $( this ).dialog( "close" );
-                        }
-                    }
-                ]
-            });
-
+            
             $("#createEventButton").click(function(){
                 viewModel.event(viewModel.createNewEvent());
                 viewModel.editMode(true);
-                //                $("#createEvent").dialog("open");
             });
 
             $("#saveEventButton").click(function () {
@@ -105,7 +55,6 @@
                             1,
                             event);
                         viewModel.editMode(false);
-                        //                                self.dialog("close");
                     })
                     .fail(function (jqXHR, textStatus, errorThrown) {
                         $("#errorMessageForEvent").text("Sorry, an error has happened. Please try again.").show();
@@ -116,7 +65,6 @@
                         event.id = result.id;
                         events.unshift(event);
                         viewModel.editMode(false);
-                        //                                self.dialog("close");
                     })
                     .fail(function (jqXHR, textStatus, errorThrown) {
                         $("#errorMessageForEvent").text("Sorry, an error has happened. Please try again.").show();
@@ -154,7 +102,11 @@
                     this.expense = ko.numericObservable(spec.expense);
                     this.count = ko.numericObservable(spec.count);
                     this.getPayment = function() { return Math.round10(parent.getPaymentPerPerson()*this.count(), -2); };
-                    this.getBalance = function() { return Math.round10(this.expense() - this.getPayment(), -2); };
+                    this.getBalance = function () { return Math.round10(this.expense() - this.getPayment(), -2); };
+                    this.getBalanceInText = function() {
+                        var balance = this.getBalance();
+                        return balance > 0;
+                    }
                 }
             }
 
@@ -192,7 +144,6 @@
                     var clone = new Event({id: eventInJS.id, name: eventInJS.name, attendingFamilies: eventInJS.attendingFamilies});
                     viewModel.event(clone);
                     viewModel.editMode(true);
-//                    $("#createEvent").dialog("open");
                 }
             };
 
@@ -208,8 +159,6 @@
                 }
             };
             viewModel.event(viewModel.createNewEvent());
-
-            
 
             ko.applyBindings(viewModel);
 //            ko.applyBindings(overall, $('#Overall')[0]);
@@ -252,8 +201,6 @@
                         </tr>
                     </thead>
                     
-                    
-                    
                     <tbody id="events" data-bind="visible: !editMode(), with: overall">
                         <!-- ko foreach: events -->
                         <tr>
@@ -264,10 +211,6 @@
                             </td>
                             <!-- ko foreach: attendingFamilies-->
                             <td>
-                                <!--                                <div class="input-group">-->
-                                <!--                                    <span class="input-group-addon">$</span>-->
-                                <!--                                    <input type="text" class="form-control" data-bind="value: getBalance()">-->
-                                <!--                                </div>-->
                                 <span>$</span>
                                 <span data-bind="text: getBalance()"></span>
                             </td>
@@ -285,46 +228,116 @@
                         </tr>
                     </tbody>
                     
-                    <tbody id="createEvent" data-bind="visible: editMode()">
-                        <!-- ko with: event -->
-                        <tr>
-                            <td>Expense</td>
-                            <!-- ko foreach: attendingFamilies-->
-                            <td><input type="text" data-bind="value: expense"></td>
-                            <!-- /ko -->
-                            <td data-bind="text: getTotalExpenses()"></td>
-                        </tr>
-                        <tr>
-                            <td>Attendee</td>
-                            <!-- ko foreach: attendingFamilies-->
-                            <td><input type="text" data-bind="value: count"></td>
-                            <!-- /ko -->
-                            <td data-bind="text: getTotalCount()"></td>
-                        </tr>
-                        <tr>
-                            <td>Balance</td>
-                            <!-- ko foreach: attendingFamilies-->
-                            <td data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></td>
-                            <!-- /ko -->
-                            <td></td>
-                        </tr>
-                        <!-- /ko -->
-                        <tr>
-                            <td colspan="3">
-                                <button id="saveEventButton" class="btn btn-info">Save</button>
-                                <button id="cancelEventButton" class="btn btn-info">Cancel</button>
-                            </td>
-                        </tr>
-                    </tbody>
+
+<!--                    <tbody id="createEvent" data-bind="visible: editMode()">-->
+<!--                        $1$ ko with: event #1#-->
+<!--                        <tr>-->
+<!--                            <td>Expense</td>-->
+<!--                            $1$ ko foreach: attendingFamilies#1#-->
+<!--                            <td>-->
+<!--$1$                                <div class="col-lg-1">#1#-->
+<!--                                    <div class="input-group">-->
+<!--                                        <span class="input-group-addon">$</span>-->
+<!--                                        <input style="min-width: 75px" type="text" class="form-control" data-bind="value: expense" placeholder="Type in expense. e.g. 7.23">-->
+<!--                                    </div>-->
+<!--$1$                                </div>#1#-->
+<!--                            </td>-->
+<!--                            $1$ /ko #1#-->
+<!--                            <td data-bind="text: getTotalExpenses()"></td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td>Attendee</td>-->
+<!--                            $1$ ko foreach: attendingFamilies#1#-->
+<!--                            <td>-->
+<!--                                $1$                                <input type="text" data-bind="value: count">#1#-->
+<!--$1$                                <div class="col-lg-1">#1#-->
+<!--                                    <div class="input-group">-->
+<!--                                        <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>-->
+<!--                                        <input type="text" class="form-control" data-bind="value: count" placeholder="Type in expense. e.g. 7.23">-->
+<!--                                    </div>-->
+<!--$1$                                </div>#1#-->
+<!--                            </td>-->
+<!--                            $1$ /ko #1#-->
+<!--                            <td data-bind="text: getTotalCount()"></td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td>Balance</td>-->
+<!--                            $1$ ko foreach: attendingFamilies#1#-->
+<!--                            <td data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></td>-->
+<!--                            $1$ /ko #1#-->
+<!--                            <td></td>-->
+<!--                        </tr>-->
+<!--                        $1$ /ko #1#-->
+<!--                        <tr>-->
+<!--                            <td colspan="3">-->
+<!--                                <button id="saveEventButton" class="btn btn-info">Save</button>-->
+<!--                                <button id="cancelEventButton" class="btn btn-info">Cancel</button>-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                    </tbody>-->
 
                 </table>
             </div>
         </div>
-        <div id="createEventOld"></div>
-        <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
+        
     </div>
-
     
+    <div class="container-fluid" id="createEvent" data-bind="visible: editMode()">
+        <!-- ko with: event -->
+        <div class="row">
+            <!-- ko foreach: attendingFamilies-->
+            <div class="col-lg-1 col-md-2 col-sm-3 col-xs-4 editFamily">
+                <div class="editField">
+                    <b><span data-bind="text: name"></span></b>
+                </div>
+                <div class="input-group editField">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-shopping-cart"></span></span>
+                    <input type="text" class="form-control" data-bind="value: expense" placeholder="Type in expense. e.g. 7.23">
+                </div>
+                <div class="input-group editField">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+                    <input type="text" class="form-control" data-bind="value: count" placeholder="Type in expense. e.g. 7.23">
+                </div>
+                <div class="editField">
+                    <span class="glyphicon glyphicon-usd"></span>
+                    <span style="font-weight: bold; font-size: larger" data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></span>
+                </div>
+            </div>
+            <!-- /ko -->
+        </div>
+        <!-- /ko -->
+        <div class="row">
+            <div class="col-lg-3">
+                <button id="saveEventButton" class="btn btn-info">Save</button>
+                <button id="cancelEventButton" class="btn btn-info">Cancel</button>
+            </div>
+        </div>
+<!--        <hr/>-->
+<!--        <div class="row">-->
+<!--            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">Attendee</div>-->
+<!--            $1$ ko foreach: attendingFamilies#1#-->
+<!--            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">-->
+<!--                <div class="input-group">-->
+<!--                    <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>-->
+<!--                    <input type="text" class="form-control" data-bind="value: count" placeholder="Type in expense. e.g. 7.23">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            $1$ /ko #1#-->
+<!--        </div>-->
+<!--        <hr/>-->
+<!--            <div class="row">-->
+<!--                <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">Balance</div>-->
+<!--                $1$ ko foreach: attendingFamilies#1#-->
+<!--                <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1" data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></div>-->
+<!--                $1$ /ko #1#-->
+<!--            </div>-->
+<!--        $1$ /ko #1#-->
+<!--        <hr/>-->
+        
+    </div>
+   
+
+    <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
 
 
 </body>
