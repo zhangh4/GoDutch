@@ -46,6 +46,8 @@ namespace GoDutch.Repository
             if(string.IsNullOrWhiteSpace(newEvent.Name)) throw new ArgumentException("Name in newEvent is null or empty");
 
             newEvent.Id = Utility.GetNextId();
+            newEvent.Name = newEvent.Name.Trim();
+            newEvent.AttendingFamilies = newEvent.AttendingFamilies.Where(f => f.Count != 0 || f.Expense != 0);
             events.Add(newEvent);
             return newEvent;
         }
