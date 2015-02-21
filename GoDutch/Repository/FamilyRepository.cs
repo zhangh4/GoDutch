@@ -19,9 +19,10 @@ namespace GoDutch.Repository
             new Family() { Id = Utility.GetNextId(), Name = "Devin" }, 
             new Family() { Id = Utility.GetNextId(), Name = "Justin" }, 
             new Family() { Id = Utility.GetNextId(), Name = "Cindy" }, 
+            new Family() { Id = Utility.GetNextId(), Name = "Joanna" }, 
         };
 
 
-        public IEnumerable<Family> Get() { return families; } 
+        public IEnumerable<Family> Get() { return families.OrderBy(f => f.Name); } 
     }
 }

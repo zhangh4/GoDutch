@@ -23,6 +23,7 @@ namespace GoDutch.Repository
                 {
                     Id = Utility.GetNextId(), 
                     Name = "Werewolf",
+                    CreateDateTime = DateTime.Now,
                     AttendingFamilies = familyRepo.Get().Select(f => new AttendingFamily()
                     {
                         Id = f.Id,
@@ -36,7 +37,7 @@ namespace GoDutch.Repository
 
         public IEnumerable<Event> Get()
         {
-            return events;
+            return events.OrderByDescending(e => e.CreateDateTime);
         } 
 
         public Event Create(Event newEvent)
@@ -47,7 +48,8 @@ namespace GoDutch.Repository
 
             newEvent.Id = Utility.GetNextId();
             newEvent.Name = newEvent.Name.Trim();
-            newEvent.AttendingFamilies = newEvent.AttendingFamilies.Where(f => f.Count != 0 || f.Expense != 0);
+            newEvent.CreateDateTime = DateTime.Now;
+//            newEvent.AttendingFamilies = newEvent.AttendingFamilies.Where(f => f.Count != 0 || f.Expense != 0);
             events.Add(newEvent);
             return newEvent;
         }
@@ -57,6 +59,8 @@ namespace GoDutch.Repository
             if (updatedEvent == null) throw new ArgumentNullException("updatedEvent");
 
             if (string.IsNullOrWhiteSpace(updatedEvent.Name)) throw new ArgumentException("Name in newEvent is null or empty");
+
+            updatedEvent.CreateDateTime = DateTime.Now;
 
             int index = events.FindIndex(e => e.Id == updatedEvent.Id);
             if(index < 0) throw new ArgumentException(string.Format("evetn does not exist for updating. Id = {0}", updatedEvent.Id));

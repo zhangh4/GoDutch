@@ -10,5 +10,6 @@ namespace GoDutch.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public IEnumerable<AttendingFamily> AttendingFamilies { get; set; }
+        public DateTime CreateDateTime { get; set; }
     }
 }

@@ -11,9 +11,9 @@
         .input-group-addon { padding: 3px 3px; }
         .form-control { padding: 3px 3px; }
         .editField { padding-bottom: 5px; }
-        .editFamily { margin: 5px 5px 5px 5px;padding: 3px 3px;width: 90px;background-color: #CEF6CE; border-radius: 8px }
+        .editFamily { margin: 5px 5px 5px 5px;padding: 3px 3px;width: 110px;background-color: #CEF6CE; border-radius: 8px }
         .tableRow { padding-bottom: 5px;margin-right: 5px;}
-        
+        .nav > li > a { padding: 7px 7px;}
     </style>
     <script src="bootstrap-3.3.2-dist/js/jquery-1.11.2.js"></script>
     <script src="bootstrap-3.3.2-dist/js/bootstrap.js"></script>
@@ -81,14 +81,23 @@
                 }
             });
 
-            $("#cancelEventButton").click(function () {
+            $("#cancelEventButton").click(function (e) {
+                e.preventDefault();
+//                viewModel.editMode(false);
+            });
+
+            $("#confirmCancelEventButton").click(function (e) {
+//                e.preventDefault();
                 viewModel.editMode(false);
             });
 
             function Event(spec) {
                 this.id = spec && spec.id;
                 this.name = spec && ko.observable(spec.name);
-                this.attendingFamilies = spec && spec.attendingFamilies.map(function(f) { return new Family(f, this); }, this);
+                this.attendingFamilies = spec && spec.attendingFamilies.map(function (f) { return new Family(f, this); }, this);
+                this.trulyAttendingFamilies = function() {
+                     return this.attendingFamilies.filter(function(f) { return f.expense() || f.count(); });
+                }
 
                 this.getTotalExpenses = function() {
                     return this.attendingFamilies
@@ -102,7 +111,7 @@
                 };
                 this.getPaymentPerPerson = function() {
                     var totalCount = this.getTotalCount();
-                    return totalCount === 0 ? null : Math.round10(this.getTotalExpenses() / totalCount, -2);
+                    return totalCount === 0 ? null : this.getTotalExpenses() / totalCount;
                 };
 
                 function Family(spec, parent) {
@@ -110,9 +119,9 @@
                     this.name = spec.name;
                     this.expense = ko.numericObservable(spec.expense);
                     this.count = ko.numericObservable(spec.count);
-                    this.getPayment = function() { return Math.round10(parent.getPaymentPerPerson()*this.count(), -2); };
+                    this.getPayment = function() { return parent.getPaymentPerPerson()*this.count(); };
                     this.getBalance = function() {
-                         return Math.round10(this.expense() - this.getPayment(), -2);
+                         return Math.round10(this.expense() - this.getPayment(), -2).toFixed(2);
                     };
                 }
             }
@@ -120,6 +129,7 @@
             var overall = {
                 families: ko.observableArray(),//[ { id: 1, name: 'Brayden' }, { id: 2, name: 'Jason' }, { id: 3, name: 'Debra' } ],
                 events: ko.observableArray(),
+                eventToRemove: ko.observable(),
                 getTotalBalances: function() {
                     return this.families()
                         .map(function (f) {
@@ -136,7 +146,11 @@
                         }, this)
                         .map(function(v) { return Math.round10(v, -2); });
                 },
-                removeEvent: function (e) {
+                rememberEventToRemove: function(e) {
+                    this.eventToRemove(e);
+                },
+                removeEvent: function () {
+                    var e = this.eventToRemove();
                     var that = this;
                     $.ajax({
                             url: getWebRoot() + '/api/events?id=' + e.id,
@@ -194,7 +208,7 @@
 
 </head>
 <body>
-    <h2>Welcome to Go Dutch <small>The designated tool for Brentwood</small></h2>
+    <center><h3>亲兄弟 明算账<small>The designated tool for Brentwood</small></h3></center>
     
     <div id="Overall" class="container-fluid" data-bind="visible: !editMode(), with: overall">
         <table class="table table-striped">
@@ -209,15 +223,19 @@
                 <!-- ko foreach: events -->
                 <tr class="tableRow" id="events">
                     <td>
-                        <div class="tableRow">
+                        <div class="tableRow" style="margin-bottom: 5px">
                             <b><span data-bind="text: name"></span></b>
-                            <span><button data-bind="click: $parent.editEvent.bind($parent)" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
-                            <span><button data-bind="click: $parent.removeEvent.bind($parent)" class="btn btn-warning"><span class="glyphicon glyphicon-remove"></span></button></span>
+                            <span style="margin: 10px 10px "><button data-bind="click: $parent.editEvent.bind($parent)" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
+                            <span>
+                                <button data-bind="click: $parent.rememberEventToRemove.bind($parent)" class="btn btn-warning" data-toggle="modal" data-target="#confirmRemoveEvent">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </span>
                         </div>
 
                         <div class="tableRow" style="padding-left: 20px">
                             <ul class="nav nav-pills">
-                                <!-- ko foreach: attendingFamilies-->
+                                <!-- ko foreach: trulyAttendingFamilies() -->
                                 <li class="active tableRow">
                                     <a href="#">
                                         <span class="badge pull-right" data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></span>
@@ -233,7 +251,26 @@
                 <!-- /ko -->
             </tbody>
         </table>
-</div>
+        <div id="confirmRemoveEvent" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+<!--                        <h4 class="modal-title">Small Modal</h4>-->
+                    </div>
+                    <div class="modal-body">
+                        <!-- ko with: eventToRemove -->
+                        <p>Do you really want to remove <span style="font-weight: bold" data-bind="text: name"></span>?</p>
+                        <!-- /ko -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-bind="click: removeEvent">Yes</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!--    <div id="Overall" class="container-fluid" data-bind="visible: !editMode()">-->
 <!--        <div class="row">-->
@@ -282,7 +319,7 @@
 <!---->
 <!--    </div>-->
     
-    <form id="editEventForm">
+    
         <div class="container-fluid" id="createEvent" data-bind="visible: editMode()">
             <div class="row">
                 <div id="errorMessageForEvent" class="alert alert-danger col-xs-12 col-sm-6 col-md-4 col-lg-3" style="display: none">
@@ -290,17 +327,14 @@
                     <b>An error has happened. Please try again.</b>
                 </div>
             </div>
-            <div class="row">
+            <div class="row" style="margin-bottom: 5px">
                 <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" style="margin-bottom: 5px">
                     <input id="eventName" type="text" class="form-control" data-bind="value: $root.event().name" placeholder="Enter the name for the event" required />
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" style="margin-bottom: 5px">
-                    <button id="saveEventButton" class="btn btn-info" type="submit">Save</button>
-                    <button id="cancelEventButton" class="btn btn-warning">Cancel</button>
-                </div>
             </div>
+            
             <!-- ko with: event -->
-            <div class="row">
+            <div class="row" style="margin-bottom: 10px">
                 <!-- ko foreach: attendingFamilies-->
                 <div class="col-lg-1 col-md-2 col-sm-3 col-xs-4 editFamily">
                     <div class="editField">
@@ -322,8 +356,35 @@
                 <!-- /ko -->
             </div>
             <!-- /ko -->
+            
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+                    <form id="editEventForm">
+                        <button id="saveEventButton" class="btn btn-info" type="submit">Save</button>
+                        <button id="cancelEventButton" class="btn btn-warning" style="margin-left: 10px" data-toggle="modal" data-target="#confirmCancelEdit">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="confirmCancelEdit" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <!--                        <h4 class="modal-title">Small Modal</h4>-->
+                        </div>
+                        <div class="modal-body">
+                            <p>Do you really want to cancel the work in progress?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmCancelEventButton">Yes</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
+    
 
     <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
 

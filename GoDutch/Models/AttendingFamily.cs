@@ -7,7 +7,7 @@ namespace GoDutch.Models
 {
     public class AttendingFamily : Family
     {
-        public double Expense { get; set; }
-        public double Count { get; set; }
+        public double? Expense { get; set; }
+        public double? Count { get; set; }
     }
 }
