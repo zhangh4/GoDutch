@@ -208,7 +208,14 @@
 
 </head>
 <body>
-    <center><h3>亲兄弟 明算账<small>The designated tool for Brentwood</small></h3></center>
+    <center>
+        <div class="container-fluid" style="margin-bottom: 10px">
+            <div class="row">
+                <div><h3><b>亲兄弟 明算账 <sup>&reg;</sup></b></h3></div>
+                <div><small>Brentwood 吃喝团推荐神器</small></div>
+            </div>
+        </div>
+    </center>
     
     <div id="Overall" class="container-fluid" data-bind="visible: !editMode(), with: overall">
         <table class="table table-striped">
@@ -224,7 +231,7 @@
                 <tr class="tableRow" id="events">
                     <td>
                         <div class="tableRow" style="margin-bottom: 5px">
-                            <b><span data-bind="text: name"></span></b>
+                            <b><span data-bind="text: name" style="font-size: larger"></span></b>
                             <span style="margin: 10px 10px "><button data-bind="click: $parent.editEvent.bind($parent)" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
                             <span>
                                 <button data-bind="click: $parent.rememberEventToRemove.bind($parent)" class="btn btn-warning" data-toggle="modal" data-target="#confirmRemoveEvent">
@@ -328,7 +335,7 @@
                 </div>
             </div>
             <div class="row" style="margin-bottom: 5px">
-                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" style="margin-bottom: 5px">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3" style="margin-bottom: 5px">
                     <input id="eventName" type="text" class="form-control" data-bind="value: $root.event().name" placeholder="Enter the name for the event" required />
                 </div>
             </div>
@@ -386,7 +393,7 @@
         </div>
     
 
-    <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
+<!--    <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>-->
 
 
 </body>
