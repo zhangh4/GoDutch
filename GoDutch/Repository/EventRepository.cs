@@ -19,19 +19,19 @@ namespace GoDutch.Repository
 
             events = new List<Event>()
             {
-                new Event()
-                {
-                    Id = Utility.GetNextId(), 
-                    Name = "Werewolf",
-                    CreateDateTime = DateTime.Now,
-                    AttendingFamilies = familyRepo.Get().Select(f => new AttendingFamily()
-                    {
-                        Id = f.Id,
-                        Name = f.Name,
-                        Expense = 10,
-                        Count = 3
-                    })
-                }
+//                new Event()
+//                {
+//                    Id = Utility.GetNextId(), 
+//                    Name = "Werewolf",
+//                    CreateDateTime = DateTime.Now,
+//                    AttendingFamilies = familyRepo.Get().Select(f => new AttendingFamily()
+//                    {
+//                        Id = f.Id,
+//                        Name = f.Name,
+//                        Expense = 10,
+//                        Count = 3
+//                    })
+//                }
             };
         }
 

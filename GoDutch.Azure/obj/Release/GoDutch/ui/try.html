@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="utility.js"></script>
+    <script type="text/javascript">
+        var outer = {
+            name: "outer",
+            contents: [{first: 'a', second: 'a'}, {first: 'b', second: 'b'}],
+            getName: function() { return this.name; },
+            getContents: function() {
+                var that = this;
+                return this.contents.map(function(value) {
+                    return value.first;
+                });
+
+                return result;
+            }
+        };
+
+//        alert(outer.getContents());
+
+
+
+        function Event(spec) {
+            this.name = spec.name;
+            this.families = spec.families.map(function(f) { return new Family(f, this); }, this);
+
+            this.getTotalExpenses = function() {
+                return this.families
+                            .map(function(f) { return f.expense; })
+                            .reduce(function(total, current) { return total + current; }, 0);
+            };
+            this.getTotalCount = function() {
+                return this.families
+                        .map(function(f) { return f.count; })
+                        .reduce(function(total, current) { return total + current; }, 0);
+            };
+            this.getPaymentPerPerson = function() {
+                var totalCount = this.getTotalCount();
+                return totalCount === 0 ? 0 : Math.round10(this.getTotalExpenses() / totalCount, -2);
+            };
+
+            function Family(spec, parent) {
+                this.name = spec.name;
+                this.expense = spec.expense;
+                this.count = spec.count;
+                this.getPayment = function() { return Math.round10(parent.getPaymentPerPerson()*this.count, -2); }
+            }
+        }
+
+        var event = new Event({
+            name: 'werewolf',
+            families: [
+                {
+                    name: 'Brayden',
+                    expense: 10,
+                    count: 2.5
+                },
+                {
+                    name: 'Jason',
+                    expense: 10,
+                    count: 1.5
+                }
+            ]
+        })
+
+        alert(event.families.map(function(f) { return f.getPayment() }));
+//        alert(theEvent.families.map(function(f) { return f.getP }));
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>

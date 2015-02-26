@@ -1,0 +1,5 @@
+C:\Users\khu9323\Documents\Visual Studio 2013\Projects\GoDutch\SqlServerDB\bin\Debug\SqlServerDB.dacpac
+C:\Users\khu9323\Documents\Visual Studio 2013\Projects\GoDutch\SqlServerDB\bin\Debug\SqlServerDB.dll
+C:\Users\khu9323\Documents\Visual Studio 2013\Projects\GoDutch\SqlServerDB\bin\Debug\SqlServerDB.pdb
+C:\Users\khu9323\Documents\Visual Studio 2013\Projects\GoDutch\SqlServerDB\obj\Debug\SqlServerDB.dll
+C:\Users\khu9323\Documents\Visual Studio 2013\Projects\GoDutch\SqlServerDB\obj\Debug\SqlServerDB.pdb
