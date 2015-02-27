@@ -53,18 +53,24 @@ namespace GoDutch.Repository
             const string insertEventSql = @"insert into dbo.Event(Name, LastModifiedDate) values (@Name, @LastModifiedDate); 
                                             SELECT CAST(scope_identity() AS int);";
 
-            using (var ts = new TransactionScope())
+            using (var conn = new SqlConnection(_connectionString))
             {
-                newEvent.Id = Sql.ExecuteScalar<int>(
-                                    insertEventSql,
-                                    new SqlParameter("@Name", newEvent.Name),
-                                    new SqlParameter("@LastModifiedDate", DateTime.Now));
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    newEvent.Id = Sql.ExecuteScalar<int>(
+                                        insertEventSql,
+                                        conn,
+                                        transaction,
+                                        new SqlParameter("@Name", newEvent.Name),
+                                        new SqlParameter("@LastModifiedDate", DateTime.Now));
 
-                CreateAttendingFamilies(newEvent.Id, newEvent.AttendingFamilies);
+                    CreateAttendingFamilies(newEvent.Id, newEvent.AttendingFamilies, conn, transaction);
 
-                ts.Complete();
+                    transaction.Commit();
 
-                return newEvent;    
+                    return newEvent;
+                }
             }
         }
 
@@ -74,20 +80,26 @@ namespace GoDutch.Repository
             if (string.IsNullOrWhiteSpace(updatedEvent.Name)) throw new ArgumentException("Name in updatedEvent is null or empty");
 
             const string sql = @"update dbo.Event set Name = @Name, LastModifiedDate = @LastModifiedDate where Id = @Id";
-
-            using (var ts = new TransactionScope())
+             
+            using (var conn = new SqlConnection(_connectionString))
             {
-                Sql.ExecuteNonQuery(
-                        sql,
-                        new SqlParameter("@Name", updatedEvent.Name),
-                        new SqlParameter("@LastModifiedDate", DateTime.Now),
-                        new SqlParameter("@Id", updatedEvent.Id));
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    Sql.ExecuteNonQuery(
+                            sql,
+                            conn,
+                            transaction,
+                            new SqlParameter("@Name", updatedEvent.Name),
+                            new SqlParameter("@LastModifiedDate", DateTime.Now),
+                            new SqlParameter("@Id", updatedEvent.Id));
 
-                DeleteAttendingFamilies(updatedEvent.Id);
+                    DeleteAttendingFamilies(updatedEvent.Id, conn, transaction);
 
-                CreateAttendingFamilies(updatedEvent.Id, updatedEvent.AttendingFamilies);    
+                    CreateAttendingFamilies(updatedEvent.Id, updatedEvent.AttendingFamilies, conn, transaction);
 
-                ts.Complete();
+                    transaction.Commit();
+                }
             }
         }
 
@@ -95,7 +107,7 @@ namespace GoDutch.Repository
         {
             const string sql = @"delete from dbo.Event where Id = @Id";
 
-            Sql.ExecuteNonQuery(sql, new SqlParameter("@Id", eventId));
+            Sql.ExecuteNonQuery(sql, null, null, new SqlParameter("@Id", eventId));
         }
 
         private IEnumerable<AttendingFamilyDto> GetAllAttendingFamilies()
@@ -123,7 +135,8 @@ namespace GoDutch.Repository
             }
         }
 
-        private void CreateAttendingFamilies(int eventId, IEnumerable<AttendingFamily> attendingFamilies)
+        // todo: use ThreadLocal to avoid passing SqlConnection and SqlTransaction
+        private void CreateAttendingFamilies(int eventId, IEnumerable<AttendingFamily> attendingFamilies, SqlConnection conn, SqlTransaction tran)
         {
             const string insertAttendingFamiliesSql =
                 @"insert into dbo.AttendingFamily (EventId, FamilyId, Expense, Count) values (@EventId, @FamilyId, @Expense, @Count)";
@@ -134,6 +147,8 @@ namespace GoDutch.Repository
                 {
                     Sql.ExecuteNonQuery(
                         insertAttendingFamiliesSql,
+                        conn,
+                        tran,
                         new SqlParameter("@EventId", eventId),
                         new SqlParameter("@FamilyId", attendingFamily.Id),
                         new SqlParameter("@Expense", attendingFamily.Expense),
@@ -142,11 +157,11 @@ namespace GoDutch.Repository
             }
         }
 
-        private void DeleteAttendingFamilies(int eventId)
+        private void DeleteAttendingFamilies(int eventId, SqlConnection conn, SqlTransaction tran)
         {
             const string sql = @"delete from dbo.AttendingFamily where EventId = @EventId";
 
-            Sql.ExecuteNonQuery(sql, new SqlParameter("@EventId", eventId));
+            Sql.ExecuteNonQuery(sql, conn, tran, new SqlParameter("@EventId", eventId));
         }
 
         private class AttendingFamilyDto : AttendingFamily

@@ -1,2 +1,0 @@
-C:\Users\khu9323\Documents\Visual Studio 2013\Projects\GoDutch\GoDutch.Azure\bin\Debug\ServiceConfiguration.cscfg
-C:\Users\khu9323\Documents\Visual Studio 2013\Projects\GoDutch\GoDutch.Azure\bin\Debug\ServiceDefinition.csdef

@@ -36,24 +36,33 @@ namespace GoDutch.Repository
             }
         }
 
-        public T ExecuteScalar<T>(string sql, params SqlParameter[] parameters)
+        public T ExecuteScalar<T>(string sql, SqlConnection conn, SqlTransaction tran, params SqlParameter[] parameters)
         {
-            return (T)ExecuteScalar(sql, parameters);
+            if (conn == null)
+            {
+                using (conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    return (T) ExecuteScalarInner(sql, conn, null, parameters);
+                }
+            }
+            else
+            {
+                return (T)ExecuteScalarInner(sql, conn, tran, parameters);    
+            }
         }
 
-        public Object ExecuteScalar(string sql, params SqlParameter[] parameters)
+        private Object ExecuteScalarInner(string sql, SqlConnection conn, SqlTransaction tran, params SqlParameter[] parameters)
         {
-            var conn = new SqlConnection(connectionString);
-            using (var cmd = conn.CreateCommand())
+            using (var cmd = new SqlCommand(sql, conn, tran))
             {
                 cmd.CommandTimeout = 240;
-                cmd.CommandText = sql;
+//                cmd.CommandText = sql;
                 foreach (var p in parameters)
                 {
                     if (p.Value == null) p.Value = DBNull.Value;
                     cmd.Parameters.Add(p);
                 }
-                conn.Open();
                 return cmd.ExecuteScalar();
             }
         }
@@ -63,13 +72,28 @@ namespace GoDutch.Repository
         //    return ExecuteReader(sql, parameters.ToArray());
         //}
 
-        public int ExecuteNonQuery(string sql, params SqlParameter[] parameters)
+        public int ExecuteNonQuery(string sql, SqlConnection conn, SqlTransaction tran, params SqlParameter[] parameters)
         {
-            using (var conn = new SqlConnection(connectionString))
-            using (var cmd = conn.CreateCommand())
+            if (conn == null)
+            {
+                using (conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    return ExecuteNonQueryInner(sql, conn, null, parameters);
+                }
+            }
+            else
+            {
+                return ExecuteNonQueryInner(sql, conn, tran, parameters);
+            }   
+        }
+
+        private int ExecuteNonQueryInner(string sql, SqlConnection conn, SqlTransaction tran, params SqlParameter[] parameters)
+        {
+            using (var cmd = new SqlCommand(sql, conn, tran))
             {
                 cmd.CommandTimeout = 240;
-                cmd.CommandText = sql;
+//                cmd.CommandText = sql;
                 foreach (var p in parameters)
                 {
                     if (p.Value == null) p.Value = DBNull.Value;
@@ -79,7 +103,6 @@ namespace GoDutch.Repository
                 // todo: log4net still not working... at least for me
 //                if (log.IsDebugEnabled) log.Debug(cmd.ToStringWithParameterValues());
 
-                conn.Open();
                 return cmd.ExecuteNonQuery();
             }
         }

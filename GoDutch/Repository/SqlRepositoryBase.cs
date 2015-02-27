@@ -7,7 +7,7 @@ namespace GoDutch.Repository
 {
     public abstract class SqlRepositoryBase
     {
-        private string _connectionString;
+        protected string _connectionString;
         protected SqlHelper Sql;
 
         protected SqlRepositoryBase(string connectionString)

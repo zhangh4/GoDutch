@@ -16,7 +16,7 @@ namespace GoDutch.Repository
         public EventRepository(IFamilyRepository familyRepo)
         {
             this.familyRepo = familyRepo;
-
+             
             events = new List<Event>()
             {
 //                new Event()
