@@ -26,6 +26,7 @@
 
         var event = viewModel.event();
         var events = viewModel.overall.events;
+        event.isSubmitting(true);
         if (event.id) {
             $.ajax({
                 url: getWebRoot() + '/api/events?id=' + event.id,
@@ -40,10 +41,12 @@
                     1,
                     event);
                 viewModel.editMode(false);
+                event.isSubmitting(false);
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
 //                $("#errorMessageForEvent").show();
                 event.hasValidationError(true);
+                event.isSubmitting(false);
             });
         } else {
             $.post(getWebRoot() + '/api/events', ko.toJSON(event))
@@ -51,10 +54,12 @@
                 event.id = result.id;
                 events.unshift(event);
                 viewModel.editMode(false);
+                event.isSubmitting(false);
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
 //                $("#errorMessageForEvent").show();
                 event.hasValidationError(true);
+                event.isSubmitting(false);
             });
         }
     });
@@ -71,6 +76,12 @@
 
     function Event(spec) {
         this.hasValidationError = ko.observable(false);
+        this.clearValidationError = function () { this.hasValidationError(false); }
+        this.isSubmitting = ko.observable();
+        this.isSubmitting.subscribe(function(newValue) {
+            if (newValue === true) $("#saveEventButton").button('loading');
+            if (newValue === false) $("#saveEventButton").button('reset');
+        });
         this.id = spec && spec.id;
         this.name = spec && ko.observable(spec.name);
         this.attendingFamilies = spec && spec.attendingFamilies.map(function (f) { return new Family(f, this); }, this);
@@ -164,6 +175,7 @@
             return true;
         }
     };
+
     viewModel.event(viewModel.createNewEvent());
 
     ko.applyBindings(viewModel);
