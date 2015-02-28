@@ -17,6 +17,7 @@
 
     $("#createEventButton").click(function () {
         viewModel.event(viewModel.createNewEvent());
+        viewModel.eventBeforeEdit = viewModel.createNewEvent();
         viewModel.editMode(true);
     });
 
@@ -26,6 +27,12 @@
 
         var event = viewModel.event();
         var events = viewModel.overall.events;
+
+        if (event.equals(viewModel.eventBeforeEdit)) {
+            viewModel.editMode(false);
+            return;
+        }
+
         event.isSubmitting(true);
         if (event.id) {
             $.ajax({
@@ -66,6 +73,11 @@
 
     $("#cancelEventButton").click(function (e) {
         e.preventDefault();
+        if (!viewModel.event().equals(viewModel.eventBeforeEdit)) {
+            $("#confirmCancelEdit").modal('show');
+        } else {
+            viewModel.editMode(false);
+        }
         //                viewModel.editMode(false);
     });
 
@@ -103,6 +115,9 @@
             var totalCount = this.getTotalCount();
             return totalCount === 0 ? null : this.getTotalExpenses() / totalCount;
         };
+        this.equals = function (other) {
+            return ko.toJSON(this) === ko.toJSON(other);
+        }
 
         function Family(spec, parent) {
             this.id = spec.id;
@@ -152,6 +167,7 @@
         },
         editEvent: function (e) {
             var eventInJS = ko.toJS(e);
+            viewModel.eventBeforeEdit = eventInJS;
             var clone = new Event({ id: eventInJS.id, name: eventInJS.name, attendingFamilies: eventInJS.attendingFamilies });
             viewModel.event(clone);
             viewModel.editMode(true);
@@ -162,9 +178,10 @@
         overall: overall,
         event: ko.observable(),
         editMode: ko.observable(false),
+        eventBeforeEdit: null,
         createNewEvent: function () {
             return new Event({
-                name: '',
+                name: null,
                 attendingFamilies: overall.families().map(function (f) { return { id: f.id, name: f.name, expense: null, count: null }; })
             });
         },
