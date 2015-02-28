@@ -83,6 +83,8 @@ ko.utils.clone = function (obj) {
 
 var gz = {
 
+    getNumberValueOrZero: function (value) { return value || 0; },
+
     getNextId: (function()
                 {
                     var seed = 1;

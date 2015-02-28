@@ -101,12 +101,12 @@
 
                 this.getTotalExpenses = function() {
                     return this.attendingFamilies
-                        .map(function(f) { return f.expense(); })
+                        .map(function(f) { return f.expense() || 0; })
                         .reduce(function(total, current) { return total + current; }, 0);
                 };
                 this.getTotalCount = function() {
                     return this.attendingFamilies
-                        .map(function(f) { return f.count(); })
+                        .map(function(f) { return f.count() || 0; })
                         .reduce(function(total, current) { return total + current; }, 0);
                 };
                 this.getPaymentPerPerson = function() {
