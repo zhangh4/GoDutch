@@ -125,8 +125,11 @@
             this.expense = ko.numericObservable(spec.expense);
             this.count = ko.numericObservable(spec.count);
             this.getPayment = function () { return parent.getPaymentPerPerson() * this.count(); };
+            this.getBalanceInNumeric = function() {
+                return Math.round10(this.expense() - this.getPayment(), -2);
+            }
             this.getBalance = function () {
-                return Math.round10(this.expense() - this.getPayment(), -2).toFixed(2);
+                return this.getBalanceInNumeric().toFixed(2);
             };
         }
     }
@@ -150,6 +153,26 @@
                         }, 0);
                 }, this)
                 .map(function (v) { return Math.round10(v, -2); });
+        },
+        getGrandTotal: function () {
+            return _.chain(overall.events())
+                    .reduce(function (total, current) {
+                                 total
+                                    .push
+                                    .apply(total, current.trulyAttendingFamilies());
+                                return total;
+                            }, [])
+                    .groupBy('name')
+                    .pairs()
+                    .map(function(namePlusFamilies) {
+                        return {
+                            name: namePlusFamilies[0],
+                            total: namePlusFamilies[1].reduce(function (total, current) {
+                                return total + current.getBalanceInNumeric();
+                            }, 0)
+                        };
+                    })
+                    .value();
         },
         rememberEventToRemove: function (e) {
             this.eventToRemove(e);
@@ -205,6 +228,8 @@
 
     $.getJSON(getWebRoot() + "/api/events", function (data) {
         overall.events(data.map(function (e) { return new Event(e); }));
+
+//        alert(viewModel.overall.getGrandTotal());
     });
 
 });

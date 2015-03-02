@@ -19,7 +19,8 @@
     <script src="Scripts/jquery-ui.js"></script>
     <script src="bootstrap-3.3.2-dist/js/jquery-1.11.2.js"></script>
     <script src="bootstrap-3.3.2-dist/js/bootstrap.js"></script>
-    <script type="text/javascript" src="Scripts/knockout-3.2.0.debug.js"></script>
+    <script src="Scripts/knockout-3.2.0.debug.js"></script>
+    <script src="Scripts/underscore-min.js"></script>
     <script src="Scripts/utility.js"></script>
     <script src="Scripts/index.js"></script>
     
@@ -78,8 +79,26 @@
                         </div>
                     </td>
                 </tr>
-
                 <!-- /ko -->
+                <tr class="success">
+                    <td>
+                        <div class="tableRow" style="margin-bottom: 5px">
+                            <center><b><i><span style="font-size: larger">Grand Total</span></i></b></center>
+                        </div>
+                        <div class="tableRow" style="padding-left: 20px">
+                            <ul class="nav nav-pills">
+                                <!-- ko foreach: $root.overall.getGrandTotal() -->
+                                <li class="active tableRow">
+                                    <a href="#">
+                                        <span class="badge pull-right" data-bind="text: total.toFixed(2), style: { color: total < 0 ? 'red' : 'green' }"></span>
+                                        <!--ko text: name--><!--/ko--><span style="margin-left: 10px">$</span>
+                                    </a>
+                                </li>
+                                <!-- /ko -->
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
         <div id="confirmRemoveEvent" class="modal fade" tabindex="-1" role="dialog">
@@ -102,53 +121,6 @@
             </div>
         </div>
     </div>
-    
-    <!--    <div id="Overall" class="container-fluid" data-bind="visible: !editMode()">-->
-<!--        <div class="row">-->
-<!--            <div class="col-xs-12 col-sm-12 col-md-10 col-lg-8 table-responsive">-->
-<!--                <table class="table table-striped">-->
-<!--                    <thead data-bind="with: overall">-->
-<!--                        <tr>-->
-<!--                            <th>-->
-<!--                                <button id="createEventButton" class="btn btn-info" data-bind="visible: !$root.editMode()">Add an Event</button>-->
-<!--                            </th>-->
-<!--                            $1$ ko foreach: families#1#-->
-<!--                            <th data-bind="text: $data.name"></th>-->
-<!--                            $1$ /ko #1#-->
-<!--                        </tr>-->
-<!--                    </thead>-->
-<!---->
-<!--                    <tbody id="events" data-bind="with: overall">-->
-<!--                        $1$ ko foreach: events #1#-->
-<!--                        <tr>-->
-<!--                            <td>-->
-<!--                                <span data-bind="text: name"></span>-->
-<!--                                <span><button data-bind="click: $parent.editEvent.bind($parent)" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>-->
-<!--                                <span><button data-bind="click: $parent.removeEvent.bind($parent)" class="btn btn-warning"><span class="glyphicon glyphicon-remove"></span></button></span>-->
-<!--                            </td>-->
-<!--                            $1$ ko foreach: attendingFamilies#1#-->
-<!--                            <td>-->
-<!--                                <span>$</span>-->
-<!--                                <span data-bind="text: getBalance()"></span>-->
-<!--                            </td>-->
-<!--                            $1$ /ko #1#-->
-<!--                        </tr>-->
-<!--                        $1$ /ko #1#-->
-<!--                        <tr class="info">-->
-<!--                            <td>Total Balance:</td>-->
-<!--                            $1$ ko foreach: getTotalBalances() #1#-->
-<!--                            <td>-->
-<!--                                <span>$</span>-->
-<!--                                <span data-bind="text: $data"></span>-->
-<!--                            </td>-->
-<!--                            $1$ /ko #1#-->
-<!--                        </tr>-->
-<!--                    </tbody>-->
-<!--                </table>-->
-<!--            </div>-->
-<!--        </div>-->
-<!---->
-<!--    </div>-->
     
     <form id="editEventForm">
         <div class="container-fluid" id="createEvent" data-bind="visible: editMode()">
