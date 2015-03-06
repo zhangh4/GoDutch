@@ -10,7 +10,9 @@
         .input-group-addon { padding: 3px 3px; }
         .form-control { padding: 3px 3px; }
         .editField { padding-bottom: 5px; }
-        .editFamily { margin: 5px 5px 5px 5px;padding: 3px 3px;width: 110px;background-color: #CEF6CE; border-radius: 8px }
+        .editFamily { margin: 5px 5px 5px 5px;padding: 3px 3px;width: 110px; border-radius: 8px }
+        .participated { background-color: #CEF6CE; }
+        .notParticipated { background-color: gray; }
         .tableRow { padding-bottom: 5px;margin-right: 5px;}
         .nav > li > a { padding: 7px 7px;}
         .numbersOnly {}
@@ -139,7 +141,7 @@
             
             <div class="row" style="margin-bottom: 10px">
                 <!-- ko foreach: attendingFamilies-->
-                <div class="col-lg-1 col-md-2 col-sm-3 col-xs-4 editFamily">
+                <div class="col-lg-1 col-md-2 col-sm-3 col-xs-4 editFamily" data-bind="style: { 'background-color': participated() ? '#CEF6CE' : '#E6DFDC' }">
                     <div class="editField">
                         <b><span data-bind="text: name"></span></b>
                     </div>

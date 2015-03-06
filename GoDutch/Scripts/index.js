@@ -98,7 +98,7 @@
         this.name = spec && ko.observable(spec.name);
         this.attendingFamilies = spec && spec.attendingFamilies.map(function (f) { return new Family(f, this); }, this);
         this.trulyAttendingFamilies = function () {
-            return this.attendingFamilies.filter(function (f) { return f.expense() || f.count(); });
+            return this.attendingFamilies.filter(function (f) { return f.participated(); });
         }
 
         this.getTotalExpenses = function () {
@@ -127,10 +127,11 @@
             this.getPayment = function () { return parent.getPaymentPerPerson() * this.count(); };
             this.getBalanceInNumeric = function() {
                 return Math.round10(this.expense() - this.getPayment(), -2);
-            }
+            };
             this.getBalance = function () {
                 return this.getBalanceInNumeric().toFixed(2);
             };
+            this.participated = function() { return this.expense() || this.count(); };
         }
     }
 
