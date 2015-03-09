@@ -131,6 +131,9 @@
             this.getBalance = function () {
                 return this.getBalanceInNumeric().toFixed(2);
             };
+            this.getBalanceNullable = function() {
+                return this.participated() ? this.getBalance() : null;
+            };
             this.participated = function() { return this.expense() || this.count(); };
         }
     }

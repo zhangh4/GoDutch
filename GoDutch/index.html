@@ -11,8 +11,6 @@
         .form-control { padding: 3px 3px; }
         .editField { padding-bottom: 5px; }
         .editFamily { margin: 5px 5px 5px 5px;padding: 3px 3px;width: 110px; border-radius: 8px }
-        .participated { background-color: #CEF6CE; }
-        .notParticipated { background-color: gray; }
         .tableRow { padding-bottom: 5px;margin-right: 5px;}
         .nav > li > a { padding: 7px 7px;}
         .numbersOnly {}
@@ -155,7 +153,7 @@
                     </div>
                     <div class="editField">
                         <span class="glyphicon glyphicon-usd"></span>
-                        <span style="font-weight: bold; font-size: larger" data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></span>
+                        <span style="font-weight: bold; font-size: larger" data-bind="text: getBalanceNullable(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></span>
                     </div>
                 </div>
                 <!-- /ko -->
