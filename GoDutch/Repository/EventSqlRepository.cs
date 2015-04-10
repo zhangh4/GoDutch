@@ -24,13 +24,19 @@ namespace GoDutch.Repository
         [Dependency]
         public IFamilyRepository FamilyRepository { get; set; }
 
-        public IEnumerable<Event> Get()
+        public IEnumerable<Event> Get(bool? active)
         {
-            const string eventSql = @"select Id, Name from dbo.Event order by LastModifiedDate desc";
+            const string eventSql = @"select Id, Name from dbo.Event @where_clause order by LastModifiedDate desc";
+
+            string actualEventSql = 
+                eventSql.Replace("@where_clause", 
+                                active == null ? string.Empty : 
+                                (active.Value ? "where Active = 1" : 
+                                                "where Active = 0"));
             
             var eventId2AttendingFamilies = GetAllAttendingFamilies().GroupBy(f => f.EventId).ToDictionary(o => o.Key, o => o);
 
-            using (var reader = Sql.ExecuteReader(eventSql))
+            using (var reader = Sql.ExecuteReader(actualEventSql))
             {
                 while (reader.Read())
                 {
@@ -101,6 +107,11 @@ namespace GoDutch.Repository
                     transaction.Commit();
                 }
             }
+        }
+
+        public void UpdateEventStatus(int eventId, bool active)
+        {
+            throw new NotImplementedException();
         }
 
         public void Delete(int eventId)

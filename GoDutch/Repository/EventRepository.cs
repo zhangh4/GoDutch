@@ -35,7 +35,7 @@ namespace GoDutch.Repository
             };
         }
 
-        public IEnumerable<Event> Get()
+        public IEnumerable<Event> Get(bool? active)
         {
             return events.OrderByDescending(e => e.CreateDateTime);
         } 
@@ -66,6 +66,11 @@ namespace GoDutch.Repository
             if(index < 0) throw new ArgumentException(string.Format("evetn does not exist for updating. Id = {0}", updatedEvent.Id));
 
             events[index] = updatedEvent;
+        }
+
+        public void UpdateEventStatus(int eventId, bool active)
+        {
+            throw new NotImplementedException();
         }
 
         public void Delete(int eventId)

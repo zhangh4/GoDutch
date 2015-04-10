@@ -9,6 +9,7 @@ using GoDutch.Repository;
 
 namespace GoDutch.Controllers
 {
+    [RoutePrefix("api/events")]
     public class EventsController : ApiController
     {
         private IEventRepository repo;
@@ -22,6 +23,18 @@ namespace GoDutch.Controllers
         public IEnumerable<Event> Get()
         {
             return repo.Get();
+        }
+
+        [Route("active")]
+        public IEnumerable<Event> GetActive()
+        {
+            return repo.Get(active:true);
+        }
+
+        [Route("inactive")]
+        public IEnumerable<Event> GetInactive()
+        {
+            return repo.Get(active:false);
         }
 
         // GET: api/Events/5
@@ -46,6 +59,11 @@ namespace GoDutch.Controllers
         public void Delete( int id)
         {
             repo.Delete(id);
+        }
+
+        public void Delete(int[] ids)
+        {
+            Console.WriteLine(ids);
         }
     }
 }
