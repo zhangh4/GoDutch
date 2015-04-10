@@ -230,7 +230,7 @@
         overall.families(data);
     });
 
-    $.getJSON(getWebRoot() + "/api/events/active", function (data) {
+    $.getJSON(getWebRoot() + "/api/events", function (data) {
         overall.events(data.map(function (e) { return new Event(e); }));
 
 //        alert(viewModel.overall.getGrandTotal());
