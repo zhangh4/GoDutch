@@ -38,6 +38,7 @@ namespace GoDutch.App_Start
 
             // TODO: Register your types here
             container.RegisterType<IFamilyRepository, FamilySqlRepository>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IExpenseRepository, ExpenseSqlRepository>(new ContainerControlledLifetimeManager());
             container.RegisterType<IEventRepository, EventSqlRepository>(new ContainerControlledLifetimeManager());
         }
     }

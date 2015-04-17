@@ -38,22 +38,22 @@ namespace GoDutch.Controllers
         }
 
         // GET: api/Events/5
-        public string Get(int id)
+        public Event Get(int id)
         {
-            return "value";
+            return repo.Get(id);
         }
 
         // POST: api/Events
-        public Event Post([FromBody]Event value)
+        public Event Post([FromBody]string eventName)
         {
-            return repo.Create(value);
+            return repo.Create(eventName);
         }
 
         // PUT: api/Events/5
-        public void Put(int id, [FromBody]Event value)
-        {
-            repo.Update(value);
-        }
+//        public void Put(int id, [FromBody]Expense value)
+//        {
+//            repo.Update(value);
+//        }
 
         // DELETE: api/Events/5
         public void Delete( int id)
