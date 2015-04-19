@@ -13,7 +13,7 @@ namespace GoDutch.Repository
 {
     public class ExpenseSqlRepository : SqlRepositoryBase, IExpenseRepository
     {
-        private readonly Dictionary<int, string> familiyId2Name;
+        private Dictionary<int, string> familiyId2Name;
 
         public ExpenseSqlRepository() : this(ConfigurationManager.ConnectionStrings["GoDutch"].ToString())
         {
@@ -21,9 +21,7 @@ namespace GoDutch.Repository
 
         private ExpenseSqlRepository(string connectionString) : base(connectionString)
         {
-            familiyId2Name = FamilyRepository
-                .Get()
-                .ToDictionary(o => o.Id, o => o.Name);
+            
         }
 
         [Dependency]
@@ -31,7 +29,7 @@ namespace GoDutch.Repository
 
         public IEnumerable<Expense> Get(int eventId)
         {
-            const string eventSql = @"select Id, Name from dbo.Expense where EventId = @EventId order by LastModifiedDate desc";
+            const string eventSql = @"select Id, Name from dbo.Expense where EventId = @EventId";
 
             var eventId2AttendingFamilies = GetAllAttendingFamilies(eventId).GroupBy(f => f.ExpenseId).ToDictionary(o => o.Key, o => o);
 
@@ -124,6 +122,15 @@ namespace GoDutch.Repository
                     FROM dbo.AttendingFamily af
                     join dbo.Expense ex on af.ExpenseId = ex.Id
                   where ex.EventId = @EventId";
+
+            // todo: move the following to constructor, but unity will not load dependency in time somehow
+            if (familiyId2Name == null)
+            {
+                familiyId2Name = FamilyRepository
+                                    .Get()
+                                    .ToDictionary(o => o.Id, o => o.Name);
+            }
+            
 
             using (var reader = Sql.ExecuteReader(attendingFamiliesSql, new SqlParameter("@EventId", eventId)))
             {

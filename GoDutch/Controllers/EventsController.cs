@@ -44,9 +44,9 @@ namespace GoDutch.Controllers
         }
 
         // POST: api/Events
-        public Event Post([FromBody]string eventName)
+        public Event Post([FromBody]Event newEvent)
         {
-            return repo.Create(eventName);
+            return repo.Create(newEvent.Name);
         }
 
         // PUT: api/Events/5
