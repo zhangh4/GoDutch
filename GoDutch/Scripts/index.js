@@ -15,65 +15,65 @@
         return webRoot ? '/' + webRoot : '';
     }
 
-    $("#createEventButton").click(function () {
-        viewModel.event(viewModel.createNewEvent());
-        viewModel.eventBeforeEdit = viewModel.createNewEvent();
+    $("#createExpenseButton").click(function () {
+        viewModel.expense(viewModel.createNewExpense());
+        viewModel.expenseBeforeEdit = viewModel.createNewExpense();
         viewModel.editMode(true);
     });
 
-    //            $("#saveEventButton").click(function () {
-    $("#editEventForm").submit(function (e) {
+    //            $("#saveExpenseButton").click(function () {
+    $("#editExpenseForm").submit(function (e) {
         e.preventDefault();
 
-        var event = viewModel.event();
-        var events = viewModel.overall.events;
+        var expense = viewModel.expense();
+        var expenses = viewModel.overall.expenses;
 
-        if (event.equals(viewModel.eventBeforeEdit)) {
+        if (expense.equals(viewModel.expenseBeforeEdit)) {
             viewModel.editMode(false);
             return;
         }
 
-        event.isSubmitting(true);
-        if (event.id) {
+        expense.isSubmitting(true);
+        if (expense.id) {
             $.ajax({
-                url: getWebRoot() + '/api/events?id=' + event.id,
-                data: ko.toJSON(event),
+                url: getWebRoot() + '/api/expenses?id=' + expense.id,
+                data: ko.toJSON(expense),
                 type: 'PUT'
             })
             .done(function () {
-                events.splice(
-                    events().indexOf(
-                        events().filter(
-                            function (e) { return e.id === event.id; })[0]),
+                expenses.splice(
+                    expenses().indexOf(
+                        expenses().filter(
+                            function (e) { return e.id === expense.id; })[0]),
                     1,
-                    event);
+                    expense);
                 viewModel.editMode(false);
-                event.isSubmitting(false);
+                expense.isSubmitting(false);
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
-//                $("#errorMessageForEvent").show();
-                event.hasValidationError(true);
-                event.isSubmitting(false);
+//                $("#errorMessageForExpense").show();
+                expense.hasValidationError(true);
+                expense.isSubmitting(false);
             });
         } else {
-            $.post(getWebRoot() + '/api/events', ko.toJSON(event))
+            $.post(getWebRoot() + '/api/expenses', ko.toJSON(expense))
             .done(function (result) {
-                event.id = result.id;
-                events.unshift(event);
+                expense.id = result.id;
+                expenses.unshift(expense);
                 viewModel.editMode(false);
-                event.isSubmitting(false);
+                expense.isSubmitting(false);
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
-//                $("#errorMessageForEvent").show();
-                event.hasValidationError(true);
-                event.isSubmitting(false);
+//                $("#errorMessageForExpense").show();
+                expense.hasValidationError(true);
+                expense.isSubmitting(false);
             });
         }
     });
 
-    $("#cancelEventButton").click(function (e) {
+    $("#cancelExpenseButton").click(function (e) {
         e.preventDefault();
-        if (!viewModel.event().equals(viewModel.eventBeforeEdit)) {
+        if (!viewModel.expense().equals(viewModel.expenseBeforeEdit)) {
             $("#confirmCancelEdit").modal('show');
         } else {
             viewModel.editMode(false);
@@ -81,21 +81,22 @@
         //                viewModel.editMode(false);
     });
 
-    $("#confirmCancelEventButton").click(function (e) {
+    $("#confirmCancelExpenseButton").click(function (e) {
         //                e.preventDefault();
         viewModel.editMode(false);
     });
 
-    function Event(spec) {
+    function Expense(spec) {
         this.hasValidationError = ko.observable(false);
         this.clearValidationError = function () { this.hasValidationError(false); }
         this.isSubmitting = ko.observable();
         this.isSubmitting.subscribe(function(newValue) {
-            if (newValue === true) $("#saveEventButton").button('loading');
-            if (newValue === false) $("#saveEventButton").button('reset');
+            if (newValue === true) $("#saveExpenseButton").button('loading');
+            if (newValue === false) $("#saveExpenseButton").button('reset');
         });
         this.id = spec && spec.id;
         this.name = spec && ko.observable(spec.name);
+        this.eventId = spec && spec.eventId;
         this.attendingFamilies = spec && spec.attendingFamilies.map(function (f) { return new Family(f, this); }, this);
         this.trulyAttendingFamilies = function () {
             return this.attendingFamilies.filter(function (f) { return f.participated(); });
@@ -140,12 +141,14 @@
 
     var overall = {
         families: ko.observableArray(),//[ { id: 1, name: 'Brayden' }, { id: 2, name: 'Jason' }, { id: 3, name: 'Debra' } ],
-        events: ko.observableArray(),
-        eventToRemove: ko.observable(),
+        expenses: ko.observableArray(),
+        expenseToRemove: ko.observable(),
+        eventId: eventId,
+        eventName: ko.observable(),
         getTotalBalances: function () {
             return this.families()
                 .map(function (f) {
-                    return this.events()
+                    return this.expenses()
                         .map(function (e) {
                             return e.attendingFamilies
                                 .filter(function (ff) {
@@ -159,7 +162,7 @@
                 .map(function (v) { return Math.round10(v, -2); });
         },
         getGrandTotal: function () {
-            return _.chain(overall.events())
+            return _.chain(overall.expenses())
                     .reduce(function (total, current) {
                                  total
                                     .push
@@ -178,37 +181,38 @@
                     })
                     .value();
         },
-        rememberEventToRemove: function (e) {
-            this.eventToRemove(e);
+        rememberExpenseToRemove: function (e) {
+            this.expenseToRemove(e);
         },
-        removeEvent: function () {
-            var e = this.eventToRemove();
+        removeExpense: function () {
+            var e = this.expenseToRemove();
             var that = this;
             $.ajax({
-                url: getWebRoot() + '/api/events?id=' + e.id,
+                url: getWebRoot() + '/api/expenses?id=' + e.id,
                 type: 'DELETE'
             })
                 .done(function () {
-                    that.events.remove(e);
+                    that.expenses.remove(e);
                 });
         },
-        editEvent: function (e) {
-            var eventInJS = ko.toJS(e);
-            viewModel.eventBeforeEdit = eventInJS;
-            var clone = new Event({ id: eventInJS.id, name: eventInJS.name, attendingFamilies: eventInJS.attendingFamilies });
-            viewModel.event(clone);
+        editExpense: function (e) {
+            var expenseInJS = ko.toJS(e);
+            viewModel.expenseBeforeEdit = expenseInJS;
+            var clone = new Expense({ id: expenseInJS.id, name: expenseInJS.name, attendingFamilies: expenseInJS.attendingFamilies, eventId: expenseInJS.eventId });
+            viewModel.expense(clone);
             viewModel.editMode(true);
         }
     };
 
     var viewModel = {
         overall: overall,
-        event: ko.observable(),
+        expense: ko.observable(),
         editMode: ko.observable(false),
-        eventBeforeEdit: null,
-        createNewEvent: function () {
-            return new Event({
+        expenseBeforeEdit: null,
+        createNewExpense: function () {
+            return new Expense({
                 name: null,
+                eventId: overall.eventId,
                 attendingFamilies: overall.families().map(function (f) { return { id: f.id, name: f.name, expense: null, count: null }; })
             });
         },
@@ -220,19 +224,19 @@
         }
     };
 
-    viewModel.event(viewModel.createNewEvent());
+    viewModel.expense(viewModel.createNewExpense());
 
     ko.applyBindings(viewModel);
     //            ko.applyBindings(overall, $('#Overall')[0]);
-    //            ko.applyBindings(event, $('#createEvent')[0]);
+    //            ko.applyBindings(expense, $('#createExpense')[0]);
 
     $.getJSON(getWebRoot() + "/api/families", function (data) {
         overall.families(data);
     });
 
-    $.getJSON(getWebRoot() + "/api/events/" + eventId, function (data) {
-        overall.events(data.map(function (e) { return new Event(e); }));
-
+    $.getJSON(getWebRoot() + "/api/events/" + overall.eventId, function (event) {
+        overall.expenses(event.expenses.map(function (e) { return new Expense(e); }));
+        overall.eventName(event.name);
 //        alert(viewModel.overall.getGrandTotal());
     });
 

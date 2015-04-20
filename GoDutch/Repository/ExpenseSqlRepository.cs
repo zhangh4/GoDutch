@@ -42,6 +42,7 @@ namespace GoDutch.Repository
                     {
                         Id = expenseId,
                         Name = reader.Get<string>("Name"),
+                        EventId = eventId,
                         AttendingFamilies = eventId2AttendingFamilies.GetOrNull(expenseId)
                     };
                 }
@@ -54,7 +55,7 @@ namespace GoDutch.Repository
             if (string.IsNullOrWhiteSpace(newExpense.Name)) throw new ArgumentException("Name in newExpense is null or empty");
             if(newExpense.EventId <= 0) throw new ArgumentException("EventId in newExpense is not positive");
 
-            const string insertExpenseSql = @"insert into dbo.Expense(Name, LastModifiedDate, EventId) values (@Name, @LastModifiedDate, @EventId); 
+            const string insertExpenseSql = @"insert into dbo.Expense(Name, EventId) values (@Name, @EventId); 
                                             SELECT CAST(scope_identity() AS int);";
 
             using (var conn = new SqlConnection(_connectionString))
@@ -67,7 +68,6 @@ namespace GoDutch.Repository
                                         conn,
                                         transaction,
                                         new SqlParameter("@Name", newExpense.Name),
-                                        new SqlParameter("@LastModifiedDate", DateTime.Now),
                                         new SqlParameter("@EventId", newExpense.EventId));
 
                     CreateAttendingFamilies(newExpense.Id, newExpense.AttendingFamilies, conn, transaction);
@@ -84,7 +84,7 @@ namespace GoDutch.Repository
             if (updatedExpense == null) throw new ArgumentNullException("updatedExpense");
             if (string.IsNullOrWhiteSpace(updatedExpense.Name)) throw new ArgumentException("Name in updatedExpense is null or empty");
 
-            const string sql = @"update dbo.Expense set Name = @Name, LastModifiedDate = @LastModifiedDate where Id = @Id";
+            const string sql = @"update dbo.Expense set Name = @Name where Id = @Id";
              
             using (var conn = new SqlConnection(_connectionString))
             {
@@ -96,7 +96,6 @@ namespace GoDutch.Repository
                             conn,
                             transaction,
                             new SqlParameter("@Name", updatedExpense.Name),
-                            new SqlParameter("@LastModifiedDate", DateTime.Now),
                             new SqlParameter("@Id", updatedExpense.Id));
 
                     DeleteAttendingFamilies(updatedExpense.Id, conn, transaction);
