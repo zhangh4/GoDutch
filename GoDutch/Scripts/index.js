@@ -17,6 +17,7 @@
 
     $("#createEventButton").click(function () {
         viewModel.editMode(true);
+        $("#eventName").focus();
     });
 
     //            $("#saveEventButton").click(function () {
@@ -36,6 +37,11 @@
             viewModel.hasValidationError(true);
             viewModel.isSubmitting(false);
         });
+    });
+
+    $("#cancelEventButton").click(function (e) {
+        e.preventDefault();
+        viewModel.editMode(false);
     });
 
     var viewModel = {
