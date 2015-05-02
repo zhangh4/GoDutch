@@ -20,69 +20,53 @@
     });
 
     //            $("#saveEventButton").click(function () {
-    $("#editEventForm").submit(function (e) {
+    $("#addEventForm").submit(function (e) {
         e.preventDefault();
 
-        var event = viewModel.event();
-        var events = viewModel.overall.events;
+        var event = { name: viewModel.eventName };
 
-        if (event.equals(viewModel.eventBeforeEdit)) {
-            viewModel.editMode(false);
-            return;
-        }
+        viewModel.isSubmitting(true);
 
-        event.isSubmitting(true);
-        if (event.id) {
-            $.ajax({
-                url: getWebRoot() + '/api/events?id=' + event.id,
-                data: ko.toJSON(event),
-                type: 'PUT'
-            })
-            .done(function () {
-                events.splice(
-                    events().indexOf(
-                        events().filter(
-                            function (e) { return e.id === event.id; })[0]),
-                    1,
-                    event);
-                viewModel.editMode(false);
-                event.isSubmitting(false);
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
+        $.post(getWebRoot() + '/api/events', ko.toJSON(event))
+        .done(function (result) {
+            window.location.href = getWebRoot() + '/events/' + result.id;
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
 //                $("#errorMessageForEvent").show();
-                event.hasValidationError(true);
-                event.isSubmitting(false);
-            });
-        } else {
-            $.post(getWebRoot() + '/api/events', ko.toJSON(event))
-            .done(function (result) {
-                event.id = result.id;
-                events.unshift(event);
-                viewModel.editMode(false);
-                event.isSubmitting(false);
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-//                $("#errorMessageForEvent").show();
-                event.hasValidationError(true);
-                event.isSubmitting(false);
-            });
-        }
-    });
-
-    $("#cancelEventButton").click(function (e) {
-        e.preventDefault();
-        viewModel.editMode(false);
-    });
-
-    $("#confirmCancelEventButton").click(function (e) {
-        //                e.preventDefault();
-        viewModel.editMode(false);
+            viewModel.hasValidationError(true);
+            viewModel.isSubmitting(false);
+        });
     });
 
     var viewModel = {
         editMode: ko.observable(false),
-        eventName: ko.observable()
+        eventName: ko.observable(),
+        isSubmitting: ko.observable(),
+        hasValidationError: ko.observable(false),
+        clearValidationError: function () { this.hasValidationError(false); },
+        events: ko.observableArray(),
+        gotoEvent: function (event) { window.location.href = getWebRoot() + '/events/' + event.id; },
+        eventToRemove: ko.observable(),
+        rememberEventToRemove: function(event) {
+             this.eventToRemove(event);
+        },
+        removeEvent: function () {
+            var e = this.eventToRemove();
+            var that = this;
+            $.ajax({
+                url: getWebRoot() + '/api/events?id=' + e.id,
+                type: 'DELETE'
+            })
+                .done(function () {
+                    that.events.remove(e);
+                });
+        }
     };
+
+    viewModel.isSubmitting.subscribe(function (newValue) {
+        if (newValue === true) $("#saveEventButton").button('loading');
+        if (newValue === false) $("#saveEventButton").button('reset');
+    });
 
     ko.applyBindings(viewModel);
 
@@ -90,10 +74,9 @@
 //        overall.families(data);
 //    });
 
-//    $.getJSON(getWebRoot() + "/api/events", function (data) {
-//        overall.events(data.map(function (e) { return new Event(e); }));
-
-//    });
+    $.getJSON(getWebRoot() + "/api/events", function (data) {
+        viewModel.events(data);
+    });
 
 });
 

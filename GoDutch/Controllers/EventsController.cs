@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Web.Http;
 using GoDutch.Models;
 using GoDutch.Repository;
 
 namespace GoDutch.Controllers
 {
+//    [Authorize(Users = @"khu9323")]
     [RoutePrefix("api/events")]
     public class EventsController : ApiController
     {
@@ -40,6 +42,7 @@ namespace GoDutch.Controllers
         // GET: api/Events/5
         public Event Get(int id)
         {
+            var principal = Thread.CurrentPrincipal;
             return repo.Get(id);
         }
 

@@ -73,8 +73,9 @@
             <thead class="tableRow">
                 <tr>
                     <th>
-                        <button id="createExpenseButton" class="btn btn-info">Add an Expense</button> 
-                        <span><i>for </i></span><span style="font-weight: bold; font-size: x-large" data-bind="text: eventName()"></span>
+                        <button id="createExpenseButton" class="btn btn-info">Add Expense</button> 
+                        <span><i>for </i></span><span style="font-weight: bold; font-size: x-large;" data-bind="text: eventName()"></span>
+                        <span><a href="~/index_event.html">All Events</a></span>
                     </th>
                 </tr>
             </thead>
@@ -160,7 +161,7 @@
             </div>
             <div class="row" style="margin-bottom: 5px">
                 <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3" style="margin-bottom: 5px">
-                    <input id="expenseName" type="text" class="form-control" data-bind="value: name" placeholder="Enter the name for the expense" required onblur="$(this).val($(this).val().trim())" />
+                    <input id="expenseName" type="text" class="form-control" data-bind="value: name" placeholder="Enter expense name" required onblur="$(this).val($(this).val().trim())" />
                 </div>
             </div>
 
@@ -172,7 +173,7 @@
                     </div>
                     <div class="input-group editField">
                         <span class="input-group-addon"><span class="glyphicon glyphicon-shopping-cart"></span></span>
-                        <input type="number" min="0.01" step="0.01" class="form-control numbersOnly" data-bind="value: expense" placeholder="Expense" onkeypress="return alpha(expense)">
+                        <input type="number" min="0.01" step="0.01" class="form-control numbersOnly" data-bind="value: expense" placeholder="Amount" onkeypress="return alpha(expense)">
                     </div>
                     <div class="input-group editField">
                         <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>

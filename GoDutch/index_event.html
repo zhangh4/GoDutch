@@ -43,13 +43,19 @@
     </center>
     
     <div id="Overall" class="container-fluid">
+        <div class="row">
+            <div id="errorMessageForExpense" class="alert alert-danger col-xs-12 col-sm-6 col-md-4 col-lg-3" data-bind="visible: hasValidationError()">
+                <a href="#" class="close" data-bind="click: clearValidationError">&times;</a>
+                <b>Please enter an event name</b>
+            </div>
+        </div>
         <table class="table table-striped">
             <thead class="tableRow">
                 <tr>
                     <th>
                         <button id="createEventButton" class="btn btn-info" data-bind="visible: !editMode()">Add an Event</button>
                         <div data-bind="visible: editMode()">
-                            <form class="form-horizontal">
+                            <form id="addEventForm" class="form-horizontal">
                                 <div class="form-group">
                                     <input id="eventName" type="text" data-bind="value: eventName" placeholder="Enter the name for the event" required onblur="$(this).val($(this).val().trim())" />
                                     <button id="saveEventButton" class="btn btn-info" type="submit" data-loading-text="Saving...">Save</button>
@@ -61,9 +67,42 @@
                 </tr>
             </thead>
             <tbody>
-                
+                <!-- ko foreach: events -->
+                <tr class="tableRow" id="expenses">
+                    <td>
+                        <div class="tableRow" style="margin-bottom: 5px">
+                            <b><span data-bind="text: name" style="font-size: larger"></span></b>
+                            <span style="margin: 10px 10px "><button data-bind="click: $parent.gotoEvent" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
+                            <span>
+                                <button data-bind="click: $parent.rememberEventToRemove.bind($parent)" class="btn btn-warning" data-toggle="modal" data-target="#confirmRemoveEvent">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                <!-- /ko -->
             </tbody>
         </table>
+        <div id="confirmRemoveEvent" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <!--                        <h4 class="modal-title">Small Modal</h4>-->
+                    </div>
+                    <div class="modal-body">
+                        <!-- ko with: eventToRemove -->
+                        <p>Do you really want to remove <span style="font-weight: bold" data-bind="text: name"></span>?</p>
+                        <!-- /ko -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-bind="click: removeEvent">Yes</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
