@@ -258,8 +258,8 @@
     <Content Include="images\ui-icons_ef8c08_256x240.png" />
     <Content Include="images\ui-icons_ffd27a_256x240.png" />
     <Content Include="images\ui-icons_ffffff_256x240.png" />
-    <Content Include="index_event.html" />
     <Content Include="index.html" />
+    <Content Include="index_old.html" />
     <Content Include="Areas\HelpPage\Views\Web.config" />
     <Content Include="Areas\HelpPage\Views\Shared\_Layout.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\ResourceModel.cshtml" />
@@ -287,8 +287,8 @@
     <Content Include="bootstrap-3.3.2-dist\fonts\glyphicons-halflings-regular.woff2" />
     <None Include="Properties\PublishProfiles\godutch %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\godutch.pubxml" />
-    <Content Include="Scripts\index_event.js" />
     <Content Include="Scripts\index.js" />
+    <Content Include="Scripts\details.js" />
     <Content Include="Scripts\jquery-2.1.3.js" />
     <Content Include="Scripts\jquery-ui.js" />
     <Content Include="Scripts\knockout-3.2.0.debug.js" />

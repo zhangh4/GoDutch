@@ -42,63 +42,46 @@
         </div>
     </center>
     
-    <div id="Overall" class="container-fluid" data-bind="visible: !editMode(), with: overall">
+    <div id="Overall" class="container-fluid">
+        <div class="row">
+            <div id="errorMessageForExpense" class="alert alert-danger col-xs-12 col-sm-6 col-md-4 col-lg-3" data-bind="visible: hasValidationError()">
+                <a href="#" class="close" data-bind="click: clearValidationError">&times;</a>
+                <b>Please enter an event name</b>
+            </div>
+        </div>
         <table class="table table-striped">
             <thead class="tableRow">
                 <tr>
                     <th>
-                        <button id="createEventButton" class="btn btn-info">Add an Event</button>
+                        <button id="createEventButton" class="btn btn-info" data-bind="visible: !editMode()">Add an Event</button>
+                        <div data-bind="visible: editMode()">
+                            <form id="addEventForm" class="form-horizontal">
+                                <div class="form-group">
+                                    <input id="eventName" type="text" data-bind="value: eventName" placeholder="Enter the event name" required onblur="$(this).val($(this).val().trim())" />
+                                    <button id="saveEventButton" class="btn btn-info" type="submit" data-loading-text="Saving...">Save</button>
+                                    <button id="cancelEventButton" class="btn btn-warning" style="margin-left: 10px">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
                     </th>
                 </tr>
             </thead>
             <tbody>
                 <!-- ko foreach: events -->
-                <tr class="tableRow" id="events">
+                <tr class="tableRow" id="expenses">
                     <td>
                         <div class="tableRow" style="margin-bottom: 5px">
                             <b><span data-bind="text: name" style="font-size: larger"></span></b>
-                            <span style="margin: 10px 10px "><button data-bind="click: $parent.editEvent.bind($parent)" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
+                            <span style="margin: 10px 10px "><button data-bind="click: $parent.gotoEvent" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
                             <span>
                                 <button data-bind="click: $parent.rememberEventToRemove.bind($parent)" class="btn btn-warning" data-toggle="modal" data-target="#confirmRemoveEvent">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </button>
                             </span>
                         </div>
-
-                        <div class="tableRow" style="padding-left: 20px">
-                            <ul class="nav nav-pills">
-                                <!-- ko foreach: trulyAttendingFamilies() -->
-                                <li class="active tableRow">
-                                    <a href="#">
-                                        <span class="badge pull-right" data-bind="text: getBalance(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></span>
-                                        <!--ko text: name--><!--/ko--><span style="margin-left: 10px">$</span>
-                                    </a>
-                                </li>
-                                <!-- /ko -->
-                            </ul>
-                        </div>
                     </td>
                 </tr>
                 <!-- /ko -->
-                <tr class="success">
-                    <td>
-                        <div class="tableRow" style="margin-bottom: 5px">
-                            <center><b><i><span style="font-size: larger">Grand Total</span></i></b></center>
-                        </div>
-                        <div class="tableRow" style="padding-left: 20px">
-                            <ul class="nav nav-pills">
-                                <!-- ko foreach: $root.overall.getGrandTotal() -->
-                                <li class="active tableRow">
-                                    <a href="#">
-                                        <span class="badge pull-right" data-bind="text: total.toFixed(2), style: { color: total < 0 ? 'red' : 'green' }"></span>
-                                        <!--ko text: name--><!--/ko--><span style="margin-left: 10px">$</span>
-                                    </a>
-                                </li>
-                                <!-- /ko -->
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
             </tbody>
         </table>
         <div id="confirmRemoveEvent" class="modal fade" tabindex="-1" role="dialog">
@@ -106,7 +89,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-<!--                        <h4 class="modal-title">Small Modal</h4>-->
+                        <!--                        <h4 class="modal-title">Small Modal</h4>-->
                     </div>
                     <div class="modal-body">
                         <!-- ko with: eventToRemove -->
@@ -122,73 +105,7 @@
         </div>
     </div>
     
-    <form id="editEventForm">
-        <div class="container-fluid" id="createEvent" data-bind="visible: editMode()">
-            <!-- ko with: event -->
-            <div class="row">
-                <div id="errorMessageForEvent" class="alert alert-danger col-xs-12 col-sm-6 col-md-4 col-lg-3" data-bind="visible: hasValidationError()">
-                    <a href="#" class="close" data-bind="click: clearValidationError">&times;</a>
-                    <b>Please enter an event name</b>
-                </div>
-            </div>
-            <div class="row" style="margin-bottom: 5px">
-                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3" style="margin-bottom: 5px">
-                    <input id="eventName" type="text" class="form-control" data-bind="value: name" placeholder="Enter the name for the event" required onblur="$(this).val($(this).val().trim())"/>
-                </div>
-            </div>
-            
-            <div class="row" style="margin-bottom: 10px">
-                <!-- ko foreach: attendingFamilies-->
-                <div class="col-lg-1 col-md-2 col-sm-3 col-xs-4 editFamily" data-bind="style: { 'background-color': participated() ? '#CEF6CE' : '#E6DFDC' }">
-                    <div class="editField">
-                        <b><span data-bind="text: name"></span></b>
-                    </div>
-                    <div class="input-group editField">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-shopping-cart"></span></span>
-                        <input type="number" min="0.01" step="0.01" class="form-control numbersOnly" data-bind="value: expense" placeholder="Expense" onkeypress="return alpha(event)">
-                    </div>
-                    <div class="input-group editField">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-                        <input type="number" min="0.5" step="0.5" class="form-control numbersOnly" data-bind="value: count" placeholder="Count" onkeypress="return alpha(event)">
-                    </div>
-                    <div class="editField">
-                        <span class="glyphicon glyphicon-usd"></span>
-                        <span style="font-weight: bold; font-size: larger" data-bind="text: getBalanceNullable(), style: { color: getBalance() < 0 ? 'red' : 'green' }"></span>
-                    </div>
-                </div>
-                <!-- /ko -->
-            </div>
-            <!-- /ko -->
-
-            <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-                    <button id="saveEventButton" class="btn btn-info" type="submit" data-loading-text="Saving...">Save</button>
-                    <button id="cancelEventButton" class="btn btn-warning" style="margin-left: 10px">Cancel</button>
-<!--                    <button id="cancelEventButton" class="btn btn-warning" style="margin-left: 10px" data-toggle="modal" data-target="#confirmCancelEdit">Cancel</button>-->
-                </div>
-            </div>
-
-            <div id="confirmCancelEdit" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                            <!--                        <h4 class="modal-title">Small Modal</h4>-->
-                        </div>
-                        <div class="modal-body">
-                            <p>Do you really want to cancel the work in progress?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmCancelEventButton">Yes</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form> 
-
-<!--    <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>-->
+    <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
 
 
 </body>

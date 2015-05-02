@@ -5,51 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title></title>
-    <link rel="stylesheet" href="~/bootstrap-3.3.2-dist/css/bootstrap.css">
+    <link rel="stylesheet" href="bootstrap-3.3.2-dist/css/bootstrap.css">
     <style>
-        .input-group-addon {
-            padding: 3px 3px;
-        }
-
-        .form-control {
-            padding: 3px 3px;
-        }
-
-        .editField {
-            padding-bottom: 5px;
-        }
-
-        .editFamily {
-            margin: 5px 5px 5px 5px;
-            padding: 3px 3px;
-            width: 110px;
-            border-radius: 8px;
-        }
-
-        .tableRow {
-            padding-bottom: 5px;
-            margin-right: 5px;
-        }
-
-        .nav > li > a {
-            padding: 7px 7px;
-        }
-
-        .numbersOnly {
-        }
+        .input-group-addon { padding: 3px 3px; }
+        .form-control { padding: 3px 3px; }
+        .editField { padding-bottom: 5px; }
+        .editFamily { margin: 5px 5px 5px 5px;padding: 3px 3px;width: 110px; border-radius: 8px }
+        .tableRow { padding-bottom: 5px;margin-right: 5px;}
+        .nav > li > a { padding: 7px 7px;}
+        .numbersOnly {}
     </style>
-    <script type="text/javascript">
-        var eventId = @ViewBag.EventId;
-    </script>
-    <script src="~/Scripts/jquery-2.1.3.js"></script>
-    <script src="~/Scripts/jquery-ui.js"></script>
-    <script src="~/bootstrap-3.3.2-dist/js/jquery-1.11.2.js"></script>
-    <script src="~/bootstrap-3.3.2-dist/js/bootstrap.js"></script>
-    <script src="~/Scripts/knockout-3.2.0.debug.js"></script>
-    <script src="~/Scripts/underscore-min.js"></script>
-    <script src="~/Scripts/utility.js"></script>
-    <script src="~/Scripts/details.js"></script>
-
+    <script src="Scripts/jquery-2.1.3.js"></script>
+    <script src="Scripts/jquery-ui.js"></script>
+    <script src="bootstrap-3.3.2-dist/js/jquery-1.11.2.js"></script>
+    <script src="bootstrap-3.3.2-dist/js/bootstrap.js"></script>
+    <script src="Scripts/knockout-3.2.0.debug.js"></script>
+    <script src="Scripts/underscore-min.js"></script>
+    <script src="Scripts/utility.js"></script>
+    <script src="Scripts/index.js"></script>
+    
     <!--[if lt IE 9]>
           <script src="https://oss.maxcdn.com/libs/html5shiv/
     ↵3.7.0/html5shiv.js"></script>
@@ -67,27 +41,25 @@
             </div>
         </div>
     </center>
-
+    
     <div id="Overall" class="container-fluid" data-bind="visible: !editMode(), with: overall">
         <table class="table table-striped">
             <thead class="tableRow">
                 <tr>
                     <th>
-                        <button id="createExpenseButton" class="btn btn-info">Add Expense</button> 
-                        <span><i>for </i></span><span style="font-weight: bold; font-size: x-large;" data-bind="text: eventName()"></span>
-                        <span><a href="~/">All Events</a></span>
+                        <button id="createEventButton" class="btn btn-info">Add an Event</button>
                     </th>
                 </tr>
             </thead>
             <tbody>
-                <!-- ko foreach: expenses -->
-                <tr class="tableRow" id="expenses">
+                <!-- ko foreach: events -->
+                <tr class="tableRow" id="events">
                     <td>
                         <div class="tableRow" style="margin-bottom: 5px">
                             <b><span data-bind="text: name" style="font-size: larger"></span></b>
-                            <span style="margin: 10px 10px "><button data-bind="click: $parent.editExpense.bind($parent)" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
+                            <span style="margin: 10px 10px "><button data-bind="click: $parent.editEvent.bind($parent)" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
                             <span>
-                                <button data-bind="click: $parent.rememberExpenseToRemove.bind($parent)" class="btn btn-warning" data-toggle="modal" data-target="#confirmRemoveExpense">
+                                <button data-bind="click: $parent.rememberEventToRemove.bind($parent)" class="btn btn-warning" data-toggle="modal" data-target="#confirmRemoveEvent">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </button>
                             </span>
@@ -129,42 +101,42 @@
                 </tr>
             </tbody>
         </table>
-        <div id="confirmRemoveExpense" class="modal fade" tabindex="-1" role="dialog">
+        <div id="confirmRemoveEvent" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-sm">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <!--                        <h4 class="modal-title">Small Modal</h4>-->
+<!--                        <h4 class="modal-title">Small Modal</h4>-->
                     </div>
                     <div class="modal-body">
-                        <!-- ko with: expenseToRemove -->
+                        <!-- ko with: eventToRemove -->
                         <p>Do you really want to remove <span style="font-weight: bold" data-bind="text: name"></span>?</p>
                         <!-- /ko -->
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-bind="click: removeExpense">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-bind="click: removeEvent">Yes</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <form id="editExpenseForm">
-        <div class="container-fluid" id="createExpense" data-bind="visible: editMode()">
-            <!-- ko with: expense -->
+    
+    <form id="editEventForm">
+        <div class="container-fluid" id="createEvent" data-bind="visible: editMode()">
+            <!-- ko with: event -->
             <div class="row">
-                <div id="errorMessageForExpense" class="alert alert-danger col-xs-12 col-sm-6 col-md-4 col-lg-3" data-bind="visible: hasValidationError()">
+                <div id="errorMessageForEvent" class="alert alert-danger col-xs-12 col-sm-6 col-md-4 col-lg-3" data-bind="visible: hasValidationError()">
                     <a href="#" class="close" data-bind="click: clearValidationError">&times;</a>
-                    <b>Please enter an expense name</b>
+                    <b>Please enter an event name</b>
                 </div>
             </div>
             <div class="row" style="margin-bottom: 5px">
                 <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3" style="margin-bottom: 5px">
-                    <input id="expenseName" type="text" class="form-control" data-bind="value: name" placeholder="Enter expense name" required onblur="$(this).val($(this).val().trim())" />
+                    <input id="eventName" type="text" class="form-control" data-bind="value: name" placeholder="Enter the name for the event" required onblur="$(this).val($(this).val().trim())"/>
                 </div>
             </div>
-
+            
             <div class="row" style="margin-bottom: 10px">
                 <!-- ko foreach: attendingFamilies-->
                 <div class="col-lg-1 col-md-2 col-sm-3 col-xs-4 editFamily" data-bind="style: { 'background-color': participated() ? '#CEF6CE' : '#E6DFDC' }">
@@ -173,11 +145,11 @@
                     </div>
                     <div class="input-group editField">
                         <span class="input-group-addon"><span class="glyphicon glyphicon-shopping-cart"></span></span>
-                        <input type="number" min="0.01" step="0.01" class="form-control numbersOnly" data-bind="value: expense" placeholder="Amount" onkeypress="return alpha(expense)">
+                        <input type="number" min="0.01" step="0.01" class="form-control numbersOnly" data-bind="value: expense" placeholder="Expense" onkeypress="return alpha(event)">
                     </div>
                     <div class="input-group editField">
                         <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-                        <input type="number" min="0.5" step="0.5" class="form-control numbersOnly" data-bind="value: count" placeholder="Count" onkeypress="return alpha(expense)">
+                        <input type="number" min="0.5" step="0.5" class="form-control numbersOnly" data-bind="value: count" placeholder="Count" onkeypress="return alpha(event)">
                     </div>
                     <div class="editField">
                         <span class="glyphicon glyphicon-usd"></span>
@@ -190,9 +162,9 @@
 
             <div class="row">
                 <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-                    <button id="saveExpenseButton" class="btn btn-info" type="submit" data-loading-text="Saving...">Save</button>
-                    <button id="cancelExpenseButton" class="btn btn-warning" style="margin-left: 10px">Cancel</button>
-                    <!--                    <button id="cancelExpenseButton" class="btn btn-warning" style="margin-left: 10px" data-toggle="modal" data-target="#confirmCancelEdit">Cancel</button>-->
+                    <button id="saveEventButton" class="btn btn-info" type="submit" data-loading-text="Saving...">Save</button>
+                    <button id="cancelEventButton" class="btn btn-warning" style="margin-left: 10px">Cancel</button>
+<!--                    <button id="cancelEventButton" class="btn btn-warning" style="margin-left: 10px" data-toggle="modal" data-target="#confirmCancelEdit">Cancel</button>-->
                 </div>
             </div>
 
@@ -207,16 +179,16 @@
                             <p>Do you really want to cancel the work in progress?</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmCancelExpenseButton">Yes</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" id="confirmCancelEventButton">Yes</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </form>
+    </form> 
 
-    <!--    <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>-->
+<!--    <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>-->
 
 
 </body>
