@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title></title>
-    <link rel="stylesheet" href="bootstrap-3.3.2-dist/css/bootstrap.css">
+    <link rel="stylesheet" href="bootstrap-3.3.2-customized/css/bootstrap.css">
     <style>
         .input-group-addon { padding: 3px 3px; }
         .form-control { padding: 3px 3px; }
@@ -18,7 +18,7 @@
     <script src="Scripts/jquery-2.1.3.js"></script>
     <script src="Scripts/jquery-ui.js"></script>
     <script src="bootstrap-3.3.2-dist/js/jquery-1.11.2.js"></script>
-    <script src="bootstrap-3.3.2-dist/js/bootstrap.js"></script>
+    <script src="bootstrap-3.3.2-customized/js/bootstrap.js"></script>
     <script src="Scripts/knockout-3.2.0.debug.js"></script>
     <script src="Scripts/underscore-min.js"></script>
     <script src="Scripts/utility.js"></script>
@@ -57,9 +57,13 @@
                         <div data-bind="visible: editMode()">
                             <form id="addEventForm" class="form-horizontal">
                                 <div class="form-group">
-                                    <input id="eventName" type="text" data-bind="value: eventName" placeholder="Enter the event name" required onblur="$(this).val($(this).val().trim())" />
-                                    <button id="saveEventButton" class="btn btn-info" type="submit" data-loading-text="Saving...">Save</button>
-                                    <button id="cancelEventButton" class="btn btn-warning" style="margin-left: 10px">Cancel</button>
+                                    <span>
+                                        <input id="eventName" type="text" style="margin-bottom: 5px; margin-right: 10px" data-bind="value: eventName" placeholder="Enter the event name" required onblur="$(this).val($(this).val().trim())" />
+                                    </span>
+                                    <span style="display: inline-block; margin-bottom: 5px">
+                                        <button id="saveEventButton" class="btn btn-info" type="submit" data-loading-text="Saving...">Save</button>
+                                        <button id="cancelEventButton" class="btn btn-warning" style="margin-left: 10px">Cancel</button>
+                                    </span>
                                 </div>
                             </form>
                         </div>
@@ -71,9 +75,9 @@
                 <tr class="tableRow" id="expenses">
                     <td>
                         <div class="tableRow" style="margin-bottom: 5px">
-                            <b><span data-bind="text: name" style="font-size: larger"></span></b>
-                            <span style="margin: 10px 10px "><button data-bind="click: $parent.gotoEvent" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button></span>
-                            <span>
+                            <b><span data-bind="text: name" style="font-size: larger; text-overflow: ellipsis; width: 100px; max-width: 100px"></span></b>
+                            <span style="margin: 10px 10px; display: inline-block">
+                                <button data-bind="click: $parent.gotoEvent" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button>
                                 <button data-bind="click: $parent.rememberEventToRemove.bind($parent)" class="btn btn-warning" data-toggle="modal" data-target="#confirmRemoveEvent">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </button>

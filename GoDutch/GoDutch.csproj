@@ -230,6 +230,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="bootstrap-3.3.2-customized\css\bootstrap-theme.css" />
+    <Content Include="bootstrap-3.3.2-customized\css\bootstrap-theme.min.css" />
+    <Content Include="bootstrap-3.3.2-customized\css\bootstrap.css" />
+    <Content Include="bootstrap-3.3.2-customized\css\bootstrap.min.css" />
+    <Content Include="bootstrap-3.3.2-customized\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="bootstrap-3.3.2-customized\js\bootstrap.js" />
+    <Content Include="bootstrap-3.3.2-customized\js\bootstrap.min.js" />
     <Content Include="bootstrap-3.3.2-dist\css\bootstrap-theme.css" />
     <Content Include="bootstrap-3.3.2-dist\css\bootstrap-theme.min.css" />
     <Content Include="bootstrap-3.3.2-dist\css\bootstrap.css" />
@@ -285,6 +292,11 @@
     <Content Include="bootstrap-3.3.2-dist\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="bootstrap-3.3.2-dist\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="bootstrap-3.3.2-dist\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="bootstrap-3.3.2-customized\config.json" />
+    <Content Include="bootstrap-3.3.2-customized\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="bootstrap-3.3.2-customized\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="bootstrap-3.3.2-customized\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="bootstrap-3.3.2-customized\fonts\glyphicons-halflings-regular.woff2" />
     <None Include="Properties\PublishProfiles\godutch %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\godutch.pubxml" />
     <Content Include="Scripts\index.js" />
