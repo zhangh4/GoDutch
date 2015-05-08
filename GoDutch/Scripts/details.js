@@ -16,9 +16,11 @@
     }
 
     $("#createExpenseButton").click(function () {
-        viewModel.expense(viewModel.createNewExpense());
-        viewModel.expenseBeforeEdit = viewModel.createNewExpense();
+        var defaultExpenseName = "费用 " + (viewModel.overall.expenses().length + 1);
+        viewModel.expense(viewModel.createNewExpense(defaultExpenseName));
+        viewModel.expenseBeforeEdit = viewModel.createNewExpense(defaultExpenseName);
         viewModel.editMode(true);
+        $("#expenseName").focus();
     });
 
     //            $("#saveExpenseButton").click(function () {
@@ -201,6 +203,7 @@
             var clone = new Expense({ id: expenseInJS.id, name: expenseInJS.name, attendingFamilies: expenseInJS.attendingFamilies, eventId: expenseInJS.eventId });
             viewModel.expense(clone);
             viewModel.editMode(true);
+            $("#expenseName").focus();
         }
     };
 
@@ -209,9 +212,9 @@
         expense: ko.observable(),
         editMode: ko.observable(false),
         expenseBeforeEdit: null,
-        createNewExpense: function () {
+        createNewExpense: function (defaultName) {
             return new Expense({
-                name: null,
+                name: defaultName,
                 eventId: overall.eventId,
                 attendingFamilies: overall.families().map(function (f) { return { id: f.id, name: f.name, expense: null, count: null }; })
             });
