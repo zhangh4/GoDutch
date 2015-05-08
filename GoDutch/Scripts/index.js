@@ -53,6 +53,7 @@
         events: ko.observableArray(),
         gotoEvent: function (event) { window.location.href = getWebRoot() + '/events/' + event.id; },
         eventToRemove: ko.observable(),
+        loading: ko.observable(true),
         rememberEventToRemove: function(event) {
              this.eventToRemove(event);
         },
@@ -82,6 +83,7 @@
 
     $.getJSON(getWebRoot() + "/api/events", function (data) {
         viewModel.events(data);
+        viewModel.loading(false);
     });
 
 });

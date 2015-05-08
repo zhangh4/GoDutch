@@ -70,10 +70,22 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody data-bind="visible: loading()">
+                <tr>
+                    <td>
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar" style="width: 100%;">
+                                Loading events...Please wait
+                            </div>
+                        </div>                        
+                    </td>
+                </tr>
+            </tbody>
+            <tbody data-bind="hidden: loading()">
                 <!-- ko foreach: events -->
                 <tr class="tableRow" id="expenses">
                     <td>
+
                         <div class="tableRow" style="margin-bottom: 5px">
                             <b><span data-bind="text: name" style="font-size: larger; text-overflow: ellipsis; width: 100px; max-width: 100px"></span></b>
                             <span style="margin: 10px 10px; display: inline-block">
