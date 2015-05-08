@@ -147,6 +147,7 @@
         expenseToRemove: ko.observable(),
         eventId: eventId,
         eventName: ko.observable(),
+        loading: ko.observable(true),
         getTotalBalances: function () {
             return this.families()
                 .map(function (f) {
@@ -233,15 +234,19 @@
     //            ko.applyBindings(overall, $('#Overall')[0]);
     //            ko.applyBindings(expense, $('#createExpense')[0]);
 
-    $.getJSON(getWebRoot() + "/api/families", function (data) {
-        overall.families(data);
+    $.when(
+        $.getJSON(getWebRoot() + "/api/families", function (data) {
+            overall.families(data);
+        }),
+        $.getJSON(getWebRoot() + "/api/events/" + overall.eventId, function (event) {
+            overall.expenses(event.expenses.map(function (e) { return new Expense(e); }));
+            overall.eventName(event.name);
+        })
+     ).done(function() {
+        viewModel.overall.loading(false);
     });
 
-    $.getJSON(getWebRoot() + "/api/events/" + overall.eventId, function (event) {
-        overall.expenses(event.expenses.map(function (e) { return new Expense(e); }));
-        overall.eventName(event.name);
-//        alert(viewModel.overall.getGrandTotal());
-    });
+    
 
 });
 

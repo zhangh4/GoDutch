@@ -85,7 +85,18 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody data-bind="visible: loading()">
+                <tr>
+                    <td>
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar" style="width: 100%;">
+                                Loading...Please wait
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody data-bind="hidden: loading()">
                 <!-- ko foreach: expenses -->
                 <tr class="tableRow" id="expenses">
                     <td>
