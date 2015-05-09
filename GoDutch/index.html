@@ -90,6 +90,8 @@
                             <b><span data-bind="text: name" style="font-size: larger; text-overflow: ellipsis; width: 100px; max-width: 100px"></span></b>
                             <span style="margin: 10px 10px; display: inline-block">
                                 <button data-bind="click: $parent.gotoEvent" class="btn btn-info"><span class="glyphicon glyphicon-edit"></span></button>
+                            </span>
+                            <span>
                                 <button data-bind="click: $parent.rememberEventToRemove.bind($parent)" class="btn btn-warning" data-toggle="modal" data-target="#confirmRemoveEvent">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </button>
