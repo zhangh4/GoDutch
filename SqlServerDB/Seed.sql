@@ -19,3 +19,4 @@ insert into Family select 'Jason' except select Name from Family;
 insert into Family select 'Joanna' except select Name from Family;
 insert into Family select 'Justin' except select Name from Family;
 insert into Family select 'Roger' except select Name from Family;
+insert into Family select 'Elaine' except select Name from Family;
