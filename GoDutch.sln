@@ -9,6 +9,10 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SqlServerDB", "SqlServerDB\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoDutchApiClient", "GoDutchApiClient\GoDutchApiClient.csproj", "{A6848EF5-C321-4832-8096-0EECFD755867}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoDutch.Common", "GoDutch.Common\GoDutch.Common.csproj", "{A33AA407-1D9E-477B-BA5F-DDEB677B391E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoDutch.Redis", "GoDutch.Redis\GoDutch.Redis.csproj", "{7EA3E1B4-AE2C-4E62-9CBD-8BB0427C3FAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +33,14 @@ Global
 		{A6848EF5-C321-4832-8096-0EECFD755867}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6848EF5-C321-4832-8096-0EECFD755867}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6848EF5-C321-4832-8096-0EECFD755867}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A33AA407-1D9E-477B-BA5F-DDEB677B391E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A33AA407-1D9E-477B-BA5F-DDEB677B391E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A33AA407-1D9E-477B-BA5F-DDEB677B391E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A33AA407-1D9E-477B-BA5F-DDEB677B391E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EA3E1B4-AE2C-4E62-9CBD-8BB0427C3FAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EA3E1B4-AE2C-4E62-9CBD-8BB0427C3FAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EA3E1B4-AE2C-4E62-9CBD-8BB0427C3FAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EA3E1B4-AE2C-4E62-9CBD-8BB0427C3FAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

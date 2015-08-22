@@ -5,7 +5,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Transactions;
 using System.Web;
-using GoDutch.Models;
+using GoDutch.Common.Models;
+using GoDutch.Common.Repository;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration.ConfigurationHelpers;
 

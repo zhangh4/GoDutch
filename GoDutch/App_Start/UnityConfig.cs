@@ -1,4 +1,5 @@
 using System;
+using GoDutch.Common.Repository;
 using GoDutch.Repository;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration;

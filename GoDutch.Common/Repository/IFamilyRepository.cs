@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using GoDutch.Models;
+using GoDutch.Common.Models;
 
-namespace GoDutch.Repository
+namespace GoDutch.Common.Repository
 {
     public interface IFamilyRepository
     {

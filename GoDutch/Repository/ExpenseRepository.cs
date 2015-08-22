@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using GoDutch.Models;
+using GoDutch.Common.Models;
+using GoDutch.Common.Repository;
 using GoDutch.Utils;
 
 namespace GoDutch.Repository

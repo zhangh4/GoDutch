@@ -4,7 +4,8 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
-using GoDutch.Models;
+using GoDutch.Common.Models;
+using GoDutch.Common.Repository;
 using Microsoft.Practices.Unity;
 
 namespace GoDutch.Repository
