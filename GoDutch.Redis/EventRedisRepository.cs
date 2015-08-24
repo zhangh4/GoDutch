@@ -6,65 +6,54 @@ using System.Threading.Tasks;
 using GoDutch.Common.Models;
 using GoDutch.Common.Repository;
 using Microsoft.Practices.Unity;
-using StackExchange.Redis;
+using ServiceStack.Redis;
 
 namespace GoDutch.Redis
 {
-    public class EventRedisRepository : RedisRepositoryBase, IEventRepository
+    public class EventRedisRepository : RedisRepoBase, IEventRepository
     {
-        private const string Prefix_Event = "event:";
-
-        public EventRedisRepository(IConnectionMultiplexer connection, string host, int port) : base(connection, host, port)
-        {
-        }
-
-        [Dependency]
-        public IExpenseRepository ExpenseRepository { get; set; }
-
         public IEnumerable<Event> Get(bool? active = null)
         {
-            throw new NotImplementedException();
+            using (var client = Manager.GetClient())
+            {
+                var eventClient = client.As<Event>();
+                return eventClient.GetAll();
+            }
         }
 
         public Event Get(int eventId)
         {
-            var db = connection.GetDatabase();
-            var values = db.HashGet(FormatKey(eventId), new RedisValue[]{"name", "createdDate"});
-            if (values.All(o => o.IsNull)) return null;
-            return new Event()
+            using (var client = Manager.GetClient())
             {
-                Id = eventId, 
-                Name = values[0], 
-                CreateDateTime = DateTime.Parse(values[1]), 
-                Expenses = new HashSet<Expense>(ExpenseRepository.Get(eventId))
-            };
+                var eventClient = client.As<Event>();
+                return eventClient.GetById(eventId);
+            }
         }
 
         public Event Create(string eventName)
         {
-            var db = connection.GetDatabase();
-            var id = (int)db.StringIncrement("id.event");
-            var now = DateTime.Now;
-            db.HashSet(FormatKey(id), 
-                        new []{ new HashEntry("name", eventName), 
-                                new HashEntry("createdDate", now.ToString("O")) });
-            return new Event() { Id = id, Name = eventName, CreateDateTime = now, Expenses = Enumerable.Empty<Expense>()};
+            return CreateOrUpdate(new Event() {Name = eventName});
+        }
+
+        public Event CreateOrUpdate(Event thEvent)
+        {
+            using (var client = Manager.GetClient())
+            {
+                var eventClient = client.As<Event>();
+                thEvent.CreateDateTime = DateTime.Now;
+                if (thEvent.Id == 0) thEvent.Id = (int) eventClient.GetNextSequence();
+                return client.Store(thEvent);
+            }
         }
 
         public void Delete(int eventId)
         {
-            var expenses = ExpenseRepository.Get(eventId);
-            foreach (var expense in expenses)
+            using (var client = Manager.GetClient())
             {
-                ExpenseRepository.Delete(expense.Id);
+                var eventClient = client.As<Event>();
+                eventClient.DeleteById(eventId);
             }
-            var db = connection.GetDatabase();
-            db.KeyDelete(FormatKey(eventId));
         }
 
-        private static string FormatKey(int id)
-        {
-            return string.Format("{0}{1}", Prefix_Event, id);
-        }
     }
 }

@@ -86,6 +86,22 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceStack.Common, Version=4.0.42.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ServiceStack.Common.4.0.42\lib\net40\ServiceStack.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Interfaces, Version=4.0.0.0, Culture=neutral, PublicKeyToken=e06fbc6124f57c43, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ServiceStack.Interfaces.4.0.42\lib\portable-wp80+sl5+net40+win8+monotouch+monoandroid+xamarin.ios10\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Redis, Version=4.0.42.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ServiceStack.Redis.4.0.42\lib\net40\ServiceStack.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text, Version=4.0.42.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ServiceStack.Text.4.0.42\lib\net40\ServiceStack.Text.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Services.Client" />
@@ -214,9 +230,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository\EventSqlRepository.cs" />
-    <Compile Include="Repository\ExpenseRepository.cs" />
-    <Compile Include="Repository\ExpenseSqlRepository.cs" />
     <Compile Include="Repository\FamilyRepository.cs" />
     <Compile Include="Repository\FamilySqlRepository.cs" />
     <Compile Include="Repository\SqlExtensions.cs" />
@@ -312,7 +325,9 @@
     <None Include="Scripts\old\_references.js" />
     <Content Include="Scripts\underscore-min.js" />
     <Content Include="Scripts\utility.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -333,6 +348,10 @@
     <ProjectReference Include="..\GoDutch.Common\GoDutch.Common.csproj">
       <Project>{a33aa407-1d9e-477b-ba5f-ddeb677b391e}</Project>
       <Name>GoDutch.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GoDutch.Redis\GoDutch.Redis.csproj">
+      <Project>{7ea3e1b4-ae2c-4e62-9cbd-8bb0427c3faf}</Project>
+      <Name>GoDutch.Redis</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

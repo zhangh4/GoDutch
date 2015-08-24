@@ -8,10 +8,7 @@ namespace GoDutch.Common.Models
     {
         private IEnumerable<AttendingFamily> attendingFamilies;
 
-        public int Id { get; set; }
         public string Name { get; set; }
-        public DateTime CreateDateTime { get; set; }
-        public int EventId { get; set; }
 
         public IEnumerable<AttendingFamily> AttendingFamilies
         {
@@ -21,8 +18,7 @@ namespace GoDutch.Common.Models
 
         protected bool Equals(Expense other)
         {
-            return Id == other.Id && string.Equals(Name, other.Name) && CreateDateTime.Equals(other.CreateDateTime) && EventId == other.EventId
-                && new HashSet<AttendingFamily>(AttendingFamilies).SetEquals(other.AttendingFamilies);
+            return string.Equals(Name, other.Name) && new HashSet<AttendingFamily>(AttendingFamilies).SetEquals(other.AttendingFamilies);
         }
 
         public override bool Equals(object obj)
@@ -37,20 +33,16 @@ namespace GoDutch.Common.Models
         {
             unchecked
             {
-                var hashCode = Id;
-                hashCode = (hashCode*397) ^ (Name != null ? Name.GetHashCode() : 0);
+                int hashCode = (Name != null ? Name.GetHashCode() : 0);
 //                hashCode = (hashCode*397) ^ (AttendingFamilies != null ? AttendingFamilies.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ CreateDateTime.GetHashCode();
-                hashCode = (hashCode*397) ^ EventId;
                 return hashCode;
             }
         }
 
         public override string ToString()
         {
-            return string.Format("Id: {0}, Name: {1}, CreateDateTime: {2}, EventId: {3}, AttendingFamilies: {4}", 
-                Id, Name, CreateDateTime.ToString("O"), EventId,
-                AttendingFamilies == null ? "": AttendingFamilies.Aggregate(string.Empty, (family, result) => string.Format("{0}, [{1}]", result, family.ToString())));
+            return string.Format("Name: {0}, AttendingFamilies: {1}", 
+                Name, AttendingFamilies == null ? "": AttendingFamilies.Aggregate(string.Empty, (family, result) => string.Format("{0}, [{1}]", result, family.ToString())));
         }
     }
 }

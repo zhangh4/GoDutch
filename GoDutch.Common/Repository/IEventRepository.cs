@@ -12,6 +12,7 @@ namespace GoDutch.Common.Repository
 
 //        void Update(Expense updatedExpense);
 //        void UpdateEventStatus(int eventId, bool active);
-        
+
+        Event CreateOrUpdate(Event thEvent);
     }
 }

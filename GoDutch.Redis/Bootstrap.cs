@@ -3,59 +3,51 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using GoDutch.Common.Models;
-using StackExchange.Redis;
+using ServiceStack.Redis;
+
 
 namespace GoDutch.Redis
 {
-    public static class Bootstrap
+    public class Bootstrap : RedisRepoBase
     {
         private static short familyIdValue = 1;
+
         private static List<Family> seedFamilies = new List<Family>()
         {
-            new Family() { Id = familyIdValue++, Name = "Alvin"},
-            new Family() { Id = familyIdValue++, Name = "Brayden"},
-            new Family() { Id = familyIdValue++, Name = "Cindy"},
-            new Family() { Id = familyIdValue++, Name = "Debra"},
-            new Family() { Id = familyIdValue++, Name = "Devin"},
-            new Family() { Id = familyIdValue++, Name = "Jason"},
-            new Family() { Id = familyIdValue++, Name = "Joanna"},
-            new Family() { Id = familyIdValue++, Name = "Justin"},
-            new Family() { Id = familyIdValue++, Name = "Roger"},
-            new Family() { Id = familyIdValue++, Name = "Elaine"},
-        }; 
+            new Family() {Name = "Alvin"},
+            new Family() {Name = "Brayden"},
+            new Family() {Name = "Cindy"},
+            new Family() {Name = "Debra"},
+            new Family() {Name = "Devin"},
+            new Family() {Name = "Jason"},
+            new Family() {Name = "Joanna"},
+            new Family() {Name = "Justin"},
+            new Family() {Name = "Roger"},
+            new Family() {Name = "Elaine"},
+        };
 
-        public static void Run()
+        public void Run()
         {
-            ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-            IDatabase db = redis.GetDatabase();
-
-            var server = redis.GetServer("localhost:6379");
-
             Stopwatch watch = Stopwatch.StartNew();
-            bool dbInitialized = server.Keys().Any();
-            Console.WriteLine("checking any key exists takes " + watch.Elapsed);
-
-            if (dbInitialized)
+            using (var client = Manager.GetClient())
             {
-                Console.WriteLine("DB already initialized, skipping bootstrap...");
-                return;
+                var familyClient = client.As<Family>();
+                bool dbInitialized = familyClient.GetRandomKey() != null;
+                Console.WriteLine("checking any key exists takes " + watch.Elapsed);
+
+                if (dbInitialized)
+                {
+                    Console.WriteLine("DB already initialized, skipping bootstrap...");
+                    return;
+                }
+
+                Console.WriteLine("Bootstrap started...");
+                watch = Stopwatch.StartNew();
+                seedFamilies.ForEach(f => f.Id = (int) familyClient.GetNextSequence());
+                familyClient.StoreAll(seedFamilies);
+
+                Console.WriteLine("Bootstrap completed in " + watch.Elapsed);
             }
-
-            Console.WriteLine("Bootstrap started...");
-            watch = Stopwatch.StartNew();
-            foreach (var seedFamily in seedFamilies)
-            {
-                db.HashSet(FamilyRedisRepository.GetKey(seedFamily.Id), new[] {new HashEntry("name", seedFamily.Name),});
-            }
-//            for (int i = 0; i < 100000; i++)
-//            {
-//                db.HashSet(FamilyRedisRepository.GetKey(familyIdValue++), new[] { new HashEntry("name", "Brayden"), });
-//            }
-
-
-             // set correct value for family id key value
-            db.StringSet("id.family", familyIdValue);
-            Console.WriteLine("Bootstrap completed in " + watch.Elapsed);
         }
     }
 }

@@ -6,6 +6,9 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using GoDutch.App_Start;
+using GoDutch.Redis;
+using Microsoft.Practices.Unity;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -27,6 +30,9 @@ namespace GoDutch
             var settings = jsonFormatter.SerializerSettings;
             settings.Formatting = Formatting.Indented;
             settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+            // seed data
+            UnityConfig.GetConfiguredContainer().Resolve<Bootstrap>().Run();
         }
     }
 }

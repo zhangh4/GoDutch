@@ -1,8 +1,11 @@
 using System;
+using System.Configuration;
 using GoDutch.Common.Repository;
+using GoDutch.Redis;
 using GoDutch.Repository;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration;
+using ServiceStack.Redis;
 
 namespace GoDutch.App_Start
 {
@@ -38,9 +41,11 @@ namespace GoDutch.App_Start
             // container.LoadConfiguration();
 
             // TODO: Register your types here
-            container.RegisterType<IFamilyRepository, FamilySqlRepository>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IExpenseRepository, ExpenseSqlRepository>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IEventRepository, EventSqlRepository>(new ContainerControlledLifetimeManager());
+            container.RegisterInstance<IRedisClientsManager>(
+                new PooledRedisClientManager(ConfigurationManager.ConnectionStrings["GoDutch"].ConnectionString), 
+                new ContainerControlledLifetimeManager());
+            container.RegisterType<IFamilyRepository, FamilyRedisRepository>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IEventRepository, EventRedisRepository>(new ContainerControlledLifetimeManager());
         }
     }
 }

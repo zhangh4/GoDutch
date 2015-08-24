@@ -5,7 +5,7 @@ using System.Linq;
 using GoDutch.Common.Models;
 using GoDutch.Common.Repository;
 using NUnit.Framework;
-using StackExchange.Redis;
+using ServiceStack.Redis;
 
 namespace GoDutch.Redis
 {
@@ -14,26 +14,25 @@ namespace GoDutch.Redis
     {
         private string host = "localhost";
         private int port = 6379;
-        private IConnectionMultiplexer connection;
-        private IFamilyRepository familyRepo;
-        private IEventRepository eventRepo;
-        private IExpenseRepository expenseRepo;
+        private FamilyRedisRepository familyRepo;
+        private EventRedisRepository eventRepo;
+        private IRedisClientsManager manager;
 
         [SetUp]
         public void Init()
         {
-            connection = ConnectionMultiplexer.Connect(host);
-            familyRepo = new FamilyRedisRepository(connection, host, port);
-            eventRepo = new EventRedisRepository(connection, host, port);
-            expenseRepo = new ExpenseRedisRepository(connection, host, port);
-           // todo: use unity 
-            ((EventRedisRepository)eventRepo).ExpenseRepository = expenseRepo;
+            manager = new BasicRedisClientManager("localhost");
+            familyRepo = new FamilyRedisRepository() {Manager = manager};
+            eventRepo = new EventRedisRepository() {Manager = manager};
+            
+
+            manager.GetClient().FlushAll();
         }
 
         [Test]
         public void TestBootstrap()
         {
-            Bootstrap.Run();
+            new Bootstrap() {Manager = manager}.Run();
         }
 
         [Test]
@@ -42,7 +41,7 @@ namespace GoDutch.Redis
             Stopwatch watch = Stopwatch.StartNew();
             var familites = familyRepo.Get().ToList();
             Console.WriteLine("Families retrieved in " + watch.Elapsed);
-//            familites.ForEach(System.Console.WriteLine);
+            familites.ForEach(System.Console.WriteLine);
         }
 
         [Test]
@@ -64,20 +63,13 @@ namespace GoDutch.Redis
         [Test]
         public void TestExpenseRepo()
         {
-            var event1 = eventRepo.Create("Test Event 1");
-            var expense1 = expenseRepo.Create(new Expense() { Name = "Test Expense 1", EventId = event1.Id });
-            var expense2 = expenseRepo.Create(new Expense() { Name = "Test Expense 2", EventId = event1.Id });
+            var event1 = new Event() { Name = "Test Event 1"};
+            var expense1 = new Expense() { Name = "Test Expense 1", AttendingFamilies = new []{ new AttendingFamily() {Id = 1, Name = "Alvin", Count = 2.5, Expense = 40.5m}}};
+            var expense2 = new Expense() { Name = "Test Expense 2" };
             event1.Expenses = new HashSet<Expense>(new[] {expense1, expense2});
+            event1 = eventRepo.CreateOrUpdate(event1);
             Assert.AreEqual(event1, eventRepo.Get(event1.Id));
 
-            expenseRepo.Delete(expense1.Id);
-            var eventAfterExpenseDeleted = eventRepo.Get(event1.Id);
-            Assert.AreEqual(1, eventAfterExpenseDeleted.Expenses.Count());
-            Assert.AreEqual(expense2.Id, eventAfterExpenseDeleted.Expenses.ToArray()[0].Id);
-
-            eventRepo.Delete(event1.Id);
-            Assert.IsNull(eventRepo.Get(event1.Id));
-            Assert.IsEmpty(expenseRepo.Get(event1.Id));
         }
 
         [Test]
