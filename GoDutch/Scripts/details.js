@@ -21,6 +21,7 @@
         viewModel.expenseBeforeEdit = viewModel.createNewExpense(defaultExpenseName);
         viewModel.editMode(true);
         $("#expenseName").focus();
+
     });
 
     //            $("#saveExpenseButton").click(function () {
@@ -35,41 +36,40 @@
             return;
         }
 
+        var index = expenses().indexOf(viewModel.expenseBeforeEdit); // must use the original array to do object reference lookup
+        var event = viewModel.overall.createEvent();
         expense.isSubmitting(true);
-        if (expense.id) {
+        if (index < 0) {
+            event.expenses.unshift(expense);
+            $.post(getWebRoot() + '/api/events', ko.toJSON(event))
+                .done(function (result) {
+                    expenses.unshift(expense);
+                    viewModel.editMode(false);
+                    expense.isSubmitting(false);
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    //                $("#errorMessageForExpense").show();
+                    expense.hasValidationError(true);
+                    expense.isSubmitting(false);
+                });
+        }
+        else {
+            event.expenses.splice(index, 1, expense);
             $.ajax({
-                url: getWebRoot() + '/api/expenses?id=' + expense.id,
-                data: ko.toJSON(expense),
-                type: 'PUT'
-            })
-            .done(function () {
-                expenses.splice(
-                    expenses().indexOf(
-                        expenses().filter(
-                            function (e) { return e.id === expense.id; })[0]),
-                    1,
-                    expense);
-                viewModel.editMode(false);
-                expense.isSubmitting(false);
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-//                $("#errorMessageForExpense").show();
-                expense.hasValidationError(true);
-                expense.isSubmitting(false);
-            });
-        } else {
-            $.post(getWebRoot() + '/api/expenses', ko.toJSON(expense))
-            .done(function (result) {
-                expense.id = result.id;
-                expenses.unshift(expense);
-                viewModel.editMode(false);
-                expense.isSubmitting(false);
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-//                $("#errorMessageForExpense").show();
-                expense.hasValidationError(true);
-                expense.isSubmitting(false);
-            });
+                    url: getWebRoot() + '/api/events?id=' + event.id,
+                    data: ko.toJSON(event),
+                    type: 'PUT'
+                })
+                .done(function () {
+                    expenses.splice(index, 1, expense);
+                    viewModel.editMode(false);
+                    expense.isSubmitting(false);
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    //                $("#errorMessageForExpense").show();
+                    expense.hasValidationError(true);
+                    expense.isSubmitting(false);
+                });
         }
     });
 
@@ -88,10 +88,16 @@
         viewModel.editMode(false);
     });
 
+    function Event(spec) {
+        this.id = spec.id;
+        this.name = spec.name;
+        this.expenses = spec.expenses;
+    }
+
     function Expense(spec) {
         this.hasValidationError = ko.observable(false);
         this.clearValidationError = function () { this.hasValidationError(false); }
-        this.isSubmitting = ko.observable();
+        this.isSubmitting = ko.observable(false);
         this.isSubmitting.subscribe(function(newValue) {
             if (newValue === true) $("#saveExpenseButton").button('loading');
             if (newValue === false) $("#saveExpenseButton").button('reset');
@@ -148,6 +154,9 @@
         eventId: eventId,
         eventName: ko.observable(),
         loading: ko.observable(true),
+        createEvent: function() {
+            return new Event({ id: this.eventId, name: this.eventName(), expenses: ko.toJS(this.expenses) });
+        },
         getTotalBalances: function () {
             return this.families()
                 .map(function (f) {
@@ -189,10 +198,14 @@
         },
         removeExpense: function () {
             var e = this.expenseToRemove();
+//            var index = this.expenses().indexOf(e);
+            var event = this.createEvent();
+            event.expenses.splice(event.expenses.indexOf(e), 1);
             var that = this;
             $.ajax({
-                url: getWebRoot() + '/api/expenses?id=' + e.id,
-                type: 'DELETE'
+                url: getWebRoot() + '/api/events?id=' + that.eventId,
+                data: ko.toJSON(event),
+                type: 'PUT'
             })
                 .done(function () {
                     that.expenses.remove(e);
@@ -200,9 +213,10 @@
         },
         editExpense: function (e) {
             var expenseInJS = ko.toJS(e);
-            viewModel.expenseBeforeEdit = expenseInJS;
+            viewModel.expenseBeforeEdit = e;
             var clone = new Expense({ id: expenseInJS.id, name: expenseInJS.name, attendingFamilies: expenseInJS.attendingFamilies, eventId: expenseInJS.eventId });
             viewModel.expense(clone);
+//            viewModel.expense(expenseInJS);
             viewModel.editMode(true);
             $("#expenseName").focus();
         }
