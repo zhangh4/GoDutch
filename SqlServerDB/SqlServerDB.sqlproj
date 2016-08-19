@@ -61,7 +61,7 @@
   <ItemGroup>
     <Build Include="Family.sql" />
     <Build Include="Event.sql" />
-    <Build Include="AttendingFamily.sql" />
+    <Build Include="Attendance.sql" />
     <Build Include="Expense.sql" />
   </ItemGroup>
   <ItemGroup>
