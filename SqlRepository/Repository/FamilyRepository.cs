@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using GoDutch.Models;
-using GoDutch.Utils;
-
-namespace GoDutch.Repository
+﻿namespace SqlRepository.Repository
 {
     public class FamilyRepository : IFamilyRepository
     {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace GoDutch.Repository
+﻿namespace SqlRepository.Repository
 {
     public abstract class SqlRepositoryBase
     {

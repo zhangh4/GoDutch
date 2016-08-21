@@ -4,8 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using GoDutch.Models;
-using GoDutch.Repository;
+using Domain;
 
 namespace GoDutch.Controllers
 {
@@ -31,8 +30,9 @@ namespace GoDutch.Controllers
         }
 
         // POST: api/Family
-        public void Post([FromBody]string value)
+        public Family Post(Family family)
         {
+            return repo.CreateOrUpdate(family);
         }
 
         // PUT: api/Family/5
@@ -41,8 +41,9 @@ namespace GoDutch.Controllers
         }
 
         // DELETE: api/Family/5
-        public void Delete(int id)
+        public void Delete()
         {
+            repo.DeleteAll();
         }
     }
 }

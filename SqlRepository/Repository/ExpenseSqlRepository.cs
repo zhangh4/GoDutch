@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Transactions;
-using System.Web;
-using GoDutch.Models;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Configuration.ConfigurationHelpers;
 
-namespace GoDutch.Repository
+namespace SqlRepository.Repository
 {
     public class ExpenseSqlRepository : SqlRepositoryBase, IExpenseRepository
     {

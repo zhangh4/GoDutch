@@ -27,6 +27,7 @@ namespace GoDutch
             var settings = jsonFormatter.SerializerSettings;
             settings.Formatting = Formatting.Indented;
             settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         }
     }
 }

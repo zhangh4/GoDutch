@@ -4,8 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using GoDutch.Models;
-using GoDutch.Repository;
+using Domain;
 
 namespace GoDutch.Controllers
 {

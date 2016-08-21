@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Web;
 
-namespace GoDutch.Repository
+namespace SqlRepository.Repository
 {
     public static class SqlExtensions
     {

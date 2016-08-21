@@ -1,7 +1,8 @@
 using System;
-using GoDutch.Repository;
+using Domain;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration;
+using Repository;
 
 namespace GoDutch.App_Start
 {
@@ -37,9 +38,9 @@ namespace GoDutch.App_Start
             // container.LoadConfiguration();
 
             // TODO: Register your types here
-            container.RegisterType<IFamilyRepository, FamilySqlRepository>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IExpenseRepository, ExpenseSqlRepository>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IEventRepository, EventSqlRepository>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IFamilyRepository, EFRepository>(new ContainerControlledLifetimeManager());
+//            container.RegisterType<IExpenseRepository, ExpenseSqlRepository>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IEventRepository, EFRepository>(new ContainerControlledLifetimeManager());
         }
     }
 }

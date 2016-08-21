@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
-using GoDutch.Models;
-using Microsoft.Practices.Unity;
+using System.Runtime.CompilerServices;
+using Domain;
 
-namespace GoDutch.Repository
+namespace SqlRepository.Repository
 {
     public class EventSqlRepository : SqlRepositoryBase, IEventRepository
     {

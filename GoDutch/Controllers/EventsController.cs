@@ -5,8 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Web.Http;
-using GoDutch.Models;
-using GoDutch.Repository;
+using Domain;
 
 namespace GoDutch.Controllers
 {
@@ -49,14 +48,14 @@ namespace GoDutch.Controllers
         // POST: api/Events
         public Event Post([FromBody]Event newEvent)
         {
-            return repo.Create(newEvent.Name);
+            return repo.CreateOrUpdate(newEvent);
         }
 
         // PUT: api/Events/5
-//        public void Put(int id, [FromBody]Expense value)
-//        {
-//            repo.Update(value);
-//        }
+        public Event Put(int id, [FromBody]Event value)
+        {
+            return repo.CreateOrUpdate(value);
+        }
 
         // DELETE: api/Events/5
         public void Delete( int id)

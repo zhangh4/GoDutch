@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using GoDutch.Models;
-using GoDutch.Utils;
 
-namespace GoDutch.Repository
+namespace SqlRepository.Repository
 {
     public class ExpenseRepository : IExpenseRepository
     {
@@ -63,7 +58,7 @@ namespace GoDutch.Repository
             updatedExpense.CreateDateTime = DateTime.Now;
 
             int index = expenses.FindIndex(e => e.Id == updatedExpense.Id);
-            if(index < 0) throw new ArgumentException(string.Format("evetn does not exist for updating. Id = {0}", updatedExpense.Id));
+            if(index < 0) throw new ArgumentException(string.Format((string) "evetn does not exist for updating. Id = {0}", (object) updatedExpense.Id));
 
             expenses[index] = updatedExpense;
         }

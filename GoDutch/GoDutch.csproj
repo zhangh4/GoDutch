@@ -215,17 +215,6 @@
     <Compile Include="Models\Expense.cs" />
     <Compile Include="Models\Family.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository\EventSqlRepository.cs" />
-    <Compile Include="Repository\ExpenseRepository.cs" />
-    <Compile Include="Repository\ExpenseSqlRepository.cs" />
-    <Compile Include="Repository\FamilyRepository.cs" />
-    <Compile Include="Repository\FamilySqlRepository.cs" />
-    <Compile Include="Repository\IEventRepository.cs" />
-    <Compile Include="Repository\IExpenseRepository.cs" />
-    <Compile Include="Repository\IFamilyRepository.cs" />
-    <Compile Include="Repository\SqlExtensions.cs" />
-    <Compile Include="Repository\SqlHelper.cs" />
-    <Compile Include="Repository\SqlRepositoryBase.cs" />
     <Compile Include="Utils\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -333,7 +322,16 @@
     <Content Include="Scripts\old\jquery-1.10.2.min.map" />
     <Content Include="Views\EventsWeb\Details.cshtml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj">
+      <Project>{511b4ce7-6eb8-4334-b854-8d10d12246c7}</Project>
+      <Name>Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Repository\EFRepository.csproj">
+      <Project>{8025be89-6101-48e5-b898-04f57121387c}</Project>
+      <Name>EFRepository</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />

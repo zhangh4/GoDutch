@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
-using log4net;
 
-namespace GoDutch.Repository
+namespace SqlRepository.Repository
 {
     public class SqlHelper
     {
