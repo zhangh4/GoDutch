@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Go Dutch</title>
+    <!--<link rel="stylesheet" href="bootstrap-3.3.2-customized/css/bootstrap.css">-->
+    <!--<style>-->
+        <!--.input-group-addon { padding: 3px 3px; }-->
+        <!--.form-control { padding: 3px 3px; }-->
+        <!--.editField { padding-bottom: 5px; }-->
+        <!--.editFamily { margin: 5px 5px 5px 5px;padding: 3px 3px;width: 110px; border-radius: 8px }-->
+        <!--.tableRow { padding-bottom: 5px;margin-right: 5px;}-->
+        <!--.nav > li > a { padding: 7px 7px;}-->
+        <!--.numbersOnly {}-->
+    <!--</style>-->
+    <!--<script src="Scripts/jquery-2.1.3.js"></script>-->
+    <!--<script src="Scripts/jquery-ui.js"></script>-->
+    <!--<script src="bootstrap-3.3.2-dist/js/jquery-1.11.2.js"></script>-->
+    <!--<script src="bootstrap-3.3.2-customized/js/bootstrap.js"></script>-->
+    <!--<script src="Scripts/underscore-min.js"></script>-->
+    <!--<script src="Scripts/utility.js"></script>-->
+    <!--<script src="Scripts/index.js"></script>-->
+
+    <!--&lt;!&ndash;[if lt IE 9]>-->
+    <!--<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>-->
+    <!--<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>-->
+    <!--<![endif]&ndash;&gt;-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.js"></script>
+
+    <script src="app/module.js"></script>
+    <script src="app/family/family.js"></script>
+
+</head>
+<body ng-app="GoDutch">
+    <center>
+        <div class="container-fluid" style="margin-bottom: 10px">
+            <div class="row">
+                <div><h3><b>亲兄弟 明算账 <sup>&reg;</sup></b></h3></div>
+                <div><small>Brentwood 吃喝团推荐神器</small></div>
+            </div>
+        </div>
+    </center>
+
+    <!--<div ng-view=""></div>-->
+    <div ng-include="'app/family/family.html'"></div>
+
+
+</body>
+</html>
